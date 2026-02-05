@@ -16,8 +16,7 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
 # --- RASM ID LARINI SHU YERGA YOZING ---
-HAT_IMG_ID = "AgACAgIAAxkBA..." # Shlyapa
-GRYFFINDOR_ID = "AgACAgIAAxkBA..." 
+HAT_IMG_ID = "AgACAgIAAxkBAAIB4WmEnib5VvSvTemzijqHF7BS2R6lAAJODmsbHDAoSFUQ-zvVXyFgAQADAgADeQADOAQ" # Fakultetlar
 SLYTHERIN_ID = "AgACAgIAAxkBA..."
 RAVENCLAW_ID = "AgACAgIAAxkBA..."
 HUFFLEPUFF_ID = "AgACAgIAAxkBA..."
@@ -99,3 +98,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
