@@ -16,12 +16,13 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
 # --- RASM ID LARINI SHU YERGA YOZING ---
-HAT_IMG_ID = "AgACAgIAAxkBAAIB4WmEnib5VvSvTemzijqHF7BS2R6lAAJODmsbHDAoSFUQ-zvVXyFgAQADAgADeQADOAQ" # Fakultetlar
-SLYTHERIN_ID = "AgACAgIAAxkBA..."
-RAVENCLAW_ID = "AgACAgIAAxkBA..."
-HUFFLEPUFF_ID = "AgACAgIAAxkBA..."
-SORTING_TOPIC_ID = None 
+HAT_IMG_ID = "AgACAgIAAxkBA..." # Shlyapa rasmi ID si
+GRYFFINDOR_ID = "AgACAgIAAxkBA..." # Gryffindor gerbi ID si
+SLYTHERIN_ID = "AgACAgIAAxkBA..."  # Slytherin gerbi ID si
+RAVENCLAW_ID = "AgACAgIAAxkBA..."  # Ravenclaw gerbi ID si
+HUFFLEPUFF_ID = "AgACAgIAAxkBA..."  # Hufflepuff gerbi ID si
 
+# Faqat shundan keyingina HOUSES lug'ati kelishi kerak
 HOUSES = {
     "Gryffindor": {"id": GRYFFINDOR_ID, "desc": "🦁 **GRYFFINDOR!**\n\nSiz jasur va mardsiz!", "emoji": "🦁"},
     "Slytherin": {"id": SLYTHERIN_ID, "desc": "🐍 **SLYTHERIN!**\n\nSiz ayor va uddaburonsiz!", "emoji": "🐍"},
@@ -98,4 +99,5 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
