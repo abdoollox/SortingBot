@@ -112,6 +112,18 @@ async def sorting_hat_process(callback: types.CallbackQuery):
         parse_mode="HTML" 
     )
 
+# --- DEBUG: EMOJI ID SINI ANIQLASH UCHUN ---
+@dp.message(F.text)
+async def get_entity_id(message: types.Message):
+    # Agar xabar ichida Custom Emoji (Premium Emoji) bo'lsa
+    if message.entities:
+        for entity in message.entities:
+            if entity.type == "custom_emoji":
+                await message.reply(f"🆔 BU EMOJI ID SI:\n<code>{entity.custom_emoji_id}</code>", parse_mode="HTML")
+                return
+    await message.reply("Bu oddiy matn yoki sticker. Iltimos, Premium Emoji yuboring.")
+
+
 # --- ASOSIY ISHGA TUSHIRISH ---
 async def main():
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -127,6 +139,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
