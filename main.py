@@ -28,20 +28,20 @@ SORTING_TOPIC_ID = 505 # Agar guruhda topic bo'lmasa None, bo'lsa raqamini yozin
 HOUSES = {
     "Gryffindor": {
         "id": GRYFFINDOR_ID, 
-        # Quyidagi qatorga e'tibor bering:
-        "desc": '<tg-emoji emoji-id="[5361601464521207771]">🦁</tg-emoji> <b>GRYFFINDOR!</b>\n\nSiz jasur va mardsiz!', 
+        # DIQQAT: [ ] qavslar olib tashlandi
+        "desc": '<tg-emoji emoji-id="5361601464521207771">🦁</tg-emoji> <b>GRYFFINDOR!</b>\n\nSiz jasur va mardsiz!', 
         "emoji": "🦁"},
     "Slytherin": {
         "id": SLYTHERIN_ID,
-        "desc": '<tg-emoji emoji-id="[5361671807495582250]">🐍</tg-emoji> <b>SLYTHERIN!</b>\n\nSiz ayor va uddaburonsiz!',
+        "desc": '<tg-emoji emoji-id="5361671807495582250">🐍</tg-emoji> <b>SLYTHERIN!</b>\n\nSiz ayor va uddaburonsiz!',
         "emoji": "🐍"},
     "Ravenclaw": {
         "id": RAVENCLAW_ID,
-        "desc": '<tg-emoji emoji-id="[5361985116769889701]">🦅</tg-emoji> <b>RAVENCLAW!</b>\n\nSiz aqlli va donosiz!',
-        "emoji": ""},
+        "desc": '<tg-emoji emoji-id="5361985116769889701">🦅</tg-emoji> <b>RAVENCLAW!</b>\n\nSiz aqlli va donosiz!',
+        "emoji": "🦅"},
     "Hufflepuff": {
         "id": HUFFLEPUFF_ID,
-        "desc": '<tg-emoji emoji-id="[5362049090307762569]">🦡</tg-emoji> <b>HUFFLEPUFF!</b>\n\nSiz mehnatkash va sodiqsiz!',
+        "desc": '<tg-emoji emoji-id="5362049090307762569">🦡</tg-emoji> <b>HUFFLEPUFF!</b>\n\nSiz mehnatkash va sodiqsiz!',
         "emoji": "🦡"}
 }
 
@@ -106,8 +106,10 @@ async def sorting_hat_process(callback: types.CallbackQuery):
         chat_id=callback.message.chat.id,
         message_thread_id=SORTING_TOPIC_ID,
         photo=house_data['id'],
-        caption=f"🎉 **{callback.from_user.first_name}**, sizning fakultetingiz:\n\n{house_data['desc']}",
-        parse_mode="Markdown"
+        # O'ZGARISH: <b> ishlatdik, ** larni olib tashladik
+        caption=f"🎉 <b>{callback.from_user.first_name}</b>, sizning fakultetingiz:\n\n{house_data['desc']}",
+        # O'ZGARISH: Markdown o'rniga HTML
+        parse_mode="HTML" 
     )
 
 # --- ASOSIY ISHGA TUSHIRISH ---
@@ -125,6 +127,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
