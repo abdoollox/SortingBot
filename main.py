@@ -16,13 +16,13 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
 # --- RASM ID LARINI SHU YERGA YOZING ---
-HAT_IMG_ID = "https://static.wikia.nocookie.net/harrypotter/images/6/62/Sorting_Hat.png" 
-GRYFFINDOR_ID = "https://static.wikia.nocookie.net/harrypotter/images/b/b1/Gryffindor_ClearBG.png"
-SLYTHERIN_ID = "https://static.wikia.nocookie.net/harrypotter/images/0/00/Slytherin_ClearBG.png"
-RAVENCLAW_ID = "https://static.wikia.nocookie.net/harrypotter/images/4/4e/RavenclawCrest.png"
-HUFFLEPUFF_ID = "https://static.wikia.nocookie.net/harrypotter/images/0/06/Hufflepuff_ClearBG.png"
+HAT_IMG_ID = "AgACAgIAAxkBAAMEaYSnRQbDnr2YuCqkbNqQdg8v2W4AAk4OaxscMChI831GZTNaiJsBAAMCAAN5AAM4BA" 
+GRYFFINDOR_ID = "AgACAgIAAxkBAAMHaYXIIPDphgbohdWYJEK5OA47R1MAArITaxtyUClIUB8w7cOd6M4BAAMCAAN5AAM4BA"
+SLYTHERIN_ID = "AgACAgIAAxkBAAMJaYXJD5GlhcgYyejILR8JTvHz0gwAAsgTaxtyUClINaIi3c1LUW8BAAMCAAN5AAM4BA"
+RAVENCLAW_ID = "AgACAgIAAxkBAAMLaYXJiweH5Eh-GTvd5Ht6L66WCjQAAtoTaxtyUClIkKj5p860ReUBAAMCAAN5AAM4BA"
+HUFFLEPUFF_ID = "AgACAgIAAxkBAAMNaYXKHqkLLw-QQufj4D533Ld9QB8AAuQTaxtyUClIP6F1JQTQnokBAAMCAAN5AAM4BA"
 
-SORTING_TOPIC_ID = None # Agar guruhda topic bo'lmasa None, bo'lsa raqamini yozing
+SORTING_TOPIC_ID = 505 # Agar guruhda topic bo'lmasa None, bo'lsa raqamini yozing
 
 # Faqat shundan keyingina HOUSES lug'ati kelishi kerak
 HOUSES = {
@@ -101,6 +101,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
