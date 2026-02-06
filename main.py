@@ -29,20 +29,20 @@ HOUSES = {
     "Gryffindor": {
         "id": GRYFFINDOR_ID, 
         # DIQQAT: [ ] qavslar olib tashlandi
-        "desc": '<tg-emoji emoji-id="5397972596203462916">🦁</tg-emoji> <b>GRYFFINDOR!</b>\n\nSiz jasur va mardsiz!', 
-        "emoji": "🦁"},
+        "desc": '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji> <b>GRYFFINDOR!</b>\n\nSiz jasur va mardsiz!', 
+        "emoji": "🔥"},
     "Slytherin": {
         "id": SLYTHERIN_ID,
-        "desc": '<tg-emoji emoji-id="5409076727341130651">🐍</tg-emoji> <b>SLYTHERIN!</b>\n\nSiz ayor va uddaburonsiz!',
-        "emoji": "🐍"},
+        "desc": '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji> <b>SLYTHERIN!</b>\n\nSiz ayor va uddaburonsiz!',
+        "emoji": "🔥"},
     "Ravenclaw": {
         "id": RAVENCLAW_ID,
-        "desc": '<tg-emoji emoji-id="5361632650278744629">🦈</tg-emoji> <b>RAVENCLAW!</b>\n\nSiz aqlli va donosiz!',
-        "emoji": "🦈"},
+        "desc": '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji> <b>RAVENCLAW!</b>\n\nSiz aqlli va donosiz!',
+        "emoji": "🔥"},
     "Hufflepuff": {
         "id": HUFFLEPUFF_ID,
-        "desc": '<tg-emoji emoji-id="5221982978355243461">🦡</tg-emoji> <b>HUFFLEPUFF!</b>\n\nSiz mehnatkash va sodiqsiz!',
-        "emoji": "🦡"}
+        "desc": '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji> <b>HUFFLEPUFF!</b>\n\nSiz mehnatkash va sodiqsiz!',
+        "emoji": "🔥"}
 }
 
 USER_HOUSES = {} 
@@ -127,6 +127,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
