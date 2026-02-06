@@ -60,9 +60,20 @@ async def get_photo_id(message: types.Message):
 async def welcome_new_member(message: types.Message):
     for user in message.new_chat_members:
         if user.id == bot.id: continue
-        caption_text = f"🧙‍♂️ **Xush kelibsiz, {user.first_name}!**\n\nSizni fakultetga taqsimlashimiz kerak."
+        
+        # O'ZGARISH: Ismni havola (link) ichiga oldik va HTML formatladik
+        caption_text = f"🧙‍♂️ <b>Xush kelibsiz, <a href='tg://user?id={user.id}'>{user.first_name}</a>!</b>\n\nSizni fakultetga taqsimlashimiz kerak."
+        
         tugma = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🎩 Qalpoqni kiyish", callback_data=f"wear_hat_{user.id}")]])
-        await bot.send_photo(chat_id=message.chat.id, message_thread_id=SORTING_TOPIC_ID, photo=HAT_IMG_ID, caption=caption_text, reply_markup=tugma, parse_mode="Markdown")
+        
+        await bot.send_photo(
+            chat_id=message.chat.id, 
+            message_thread_id=SORTING_TOPIC_ID, 
+            photo=HAT_IMG_ID, 
+            caption=caption_text, 
+            reply_markup=tugma, 
+            parse_mode="HTML"
+        )
 
 # --- TAQSIMLASH JARAYONI ---
 @dp.callback_query(F.data.startswith("wear_hat_"))
@@ -101,6 +112,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
