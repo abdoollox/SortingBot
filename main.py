@@ -179,14 +179,14 @@ async def sorting_hat_process(callback: types.CallbackQuery):
             caption="🤔 <b>Hmm... Qiyin masala... Juda qiyin...</b>",
             parse_mode="HTML"
         )
-        await asyncio.sleep(2) # 2 soniya kutamiz
+        await asyncio.sleep(4) # 4 soniya kutamiz
         
         # Xabarni tahrirlaymiz: 2-bosqich
         await callback.message.edit_caption(
             caption="🧐 <b>Aql bor... Jasorat ham yetarli...\nIste'dod ham yo'q emas...\n\nXo'sh, qayerga joylashtirsam ekan?</b>",
             parse_mode="HTML"
         )
-        await asyncio.sleep(3) # Yana 3 soniya kutamiz (Jami 5 soniya)
+        await asyncio.sleep(6) # Yana 6 soniya kutamiz (Jami 5 soniya)
         
     except Exception as e:
         # Agar xabarni o'zgartirishda xato bo'lsa (masalan, user o'chirib yuborsa), shunchaki davom etamiz
@@ -281,6 +281,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
