@@ -160,51 +160,40 @@ async def delete_left_message(message: types.Message):
     except Exception as e:
         logging.warning(f"Chiqish xabarini o'chirolmadim: {e}")
 
-# --- TAQSIMLASH JARAYONI (ANIMATSIYA BILAN) ---
+# --- TAQSIMLASH JARAYONI (ALERT BILAN) ---
 @dp.callback_query(F.data.startswith("wear_hat_"))
 async def sorting_hat_process(callback: types.CallbackQuery):
     target_id = int(callback.data.split("_")[2])
     
-    # Birovning o'rniga bosib yuborishni oldini olish
+    # 1. Birovning o'rniga bosib yuborishni oldini olish
     if callback.from_user.id != target_id:
         await callback.answer("Bu siz uchun emas! ✋", show_alert=True)
         return
     
-    # 1-QADAM: "O'ylash" jarayonini boshlaymiz
-    await callback.answer() # Soat aylanib turmasligi uchun darrov javob beramiz
+    # 2. "O'YLASH" JARAYONI (ALERT OYNASIDA)
+    # show_alert=True qilsak, ekranda OK tugmasi bor oyna chiqadi
+    await callback.answer(
+        text="🤔 Hmm... Qiyin masala...\n\nAql bor, jasorat ham yetarli...\nIste'dod ham yo'q emas...\n\nXo'sh, qayerga joylashtirsam ekan-a?",
+        show_alert=True 
+    )
     
-    try:
-        # Xabarni tahrirlaymiz: 1-bosqich
-        await callback.message.edit_caption(
-            caption="🤔 <b>Hmm... Qiyin masala... Juda qiyin...</b>",
-            parse_mode="HTML"
-        )
-        await asyncio.sleep(4) # 4 soniya kutamiz
-        
-        # Xabarni tahrirlaymiz: 2-bosqich
-        await callback.message.edit_caption(
-            caption="🧐 <b>Aql bor... Jasorat ham yetarli...\nIste'dod ham yo'q emas...\n\nXo'sh, qayerga joylashtirsam ekan?</b>",
-            parse_mode="HTML"
-        )
-        await asyncio.sleep(6) # Yana 6 soniya kutamiz (Jami 5 soniya)
-        
-    except Exception as e:
-        # Agar xabarni o'zgartirishda xato bo'lsa (masalan, user o'chirib yuborsa), shunchaki davom etamiz
-        pass
+    # User alertni o'qib bo'lguncha biroz kutamiz (animatsiya effekti uchun)
+    await asyncio.sleep(10) 
 
-    # 2-QADAM: Fakultetni aniqlash va saqlash
+    # 3. FAKULTETNI ANIQLASH
     house_name = random.choice(list(HOUSES.keys()))
     house_data = HOUSES[house_name]
     
+    # Bazaga yozish
     USER_HOUSES[target_id] = {
         "house": house_name,
         "name": callback.from_user.first_name,
         "mention": f"<a href='tg://user?id={target_id}'>{callback.from_user.first_name}</a>"
     }
-    save_data(USER_HOUSES) # Bazaga yozamiz
+    save_data(USER_HOUSES)
     
-    # 3-QADAM: Eski xabarni o'chiramiz va Natijani chiqarimiz
-    await callback.message.delete()
+    # 4. NATIJANI GURUHGA CHIQARISH
+    await callback.message.delete() # Eski "shlyapa kiyish" xabarini o'chiramiz
     
     user_mention = f"<a href='tg://user?id={callback.from_user.id}'>{callback.from_user.first_name}</a>"
     final_caption = house_data['desc'].format(mention=user_mention)
@@ -216,7 +205,6 @@ async def sorting_hat_process(callback: types.CallbackQuery):
         caption=final_caption,
         parse_mode="HTML"
     )
-
 # --- STATISTIKA (RO'YXAT) - FAQAT ADMINLAR UCHUN ---
 @dp.message(Command("statistika"))
 async def show_statistics(message: types.Message):
@@ -281,6 +269,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
