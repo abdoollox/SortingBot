@@ -28,23 +28,54 @@ SORTING_TOPIC_ID = 505 # Agar guruhda topic bo'lmasa None, bo'lsa raqamini yozin
 HOUSES = {
     "Gryffindor": {
         "id": GRYFFINDOR_ID,
-        # <tg-emoji> ni butunlay olib tashlaymiz
-        "desc": '🦁 <b>GRYFFINDOR!</b>\n\nSiz jasur va mardsiz!',
+        "desc": (
+            "🧙‍♂️ {mention}, sening qalbingda jasorat va qat’iyat bor!\n\n"
+            
+            "🦁 Sening fakulteting — <b>GRYFFINDOR!</b>\n\n"
+            
+            "🔥 Gryffindor — jasur, mard va yetakchi sehrgarlar uyi. Bu yerda qo‘rquv emas, jasorat hukmron.\n\n"
+            
+            "✨ Fakulteting bilan faxrlan!"
+        ),
         "emoji": "🦁"
     },
     "Slytherin": {
         "id": SLYTHERIN_ID,
-        "desc": '🐍 <b>SLYTHERIN!</b>\n\nSiz ayor va uddaburonsiz!',
+        "desc": (
+            "🧙‍♂️ {mention}, sening qalbingda ulkan ambitsiyalar yashirin!\n\n"
+            
+            "🐍 Sening fakulteting — <b>SLYTHERIN!</b>\n\n"
+            
+            "🟢 Slytherin — aql, strategiya va ambitsiya fakulteti. Buyuk sehrgarlar aynan shu yerdan chiqqan.\n\n"
+            
+            "🔐 Sirlaringni asra!"
+        ),
         "emoji": "🐍"
     },
     "Ravenclaw": {
         "id": RAVENCLAW_ID,
-        "desc": '🦅 <b>RAVENCLAW!</b>\n\nSiz aqlli va donosiz!',
+        "desc": (
+            "🧙‍♂️ {mention}, sening zehning va aqling tengsiz!\n\n"
+            
+            "🦅 Sening fakulteting — <b>RAVENCLAW!</b>\n\n"
+            
+            "🔵 Ravenclaw — aql, bilim va donolik fakulteti. Bu yerda savollar javoblardan muhimroq.\n\n"
+            
+            "📘 O'rganishdan toxtama!"
+        ),
         "emoji": "🦅"
     },
     "Hufflepuff": {
         "id": HUFFLEPUFF_ID,
-        "desc": '🦡 <b>HUFFLEPUFF!</b>\n\nSiz mehnatkash va sodiqsiz!',
+        "desc": (
+           "🧙‍♂️ {mention}, sening yuraging toza va sadoqatli!\n\n"
+            
+            "🦡 Sening fakulteting — <b>HUFFLEPUFF!</b>\n\n"
+            
+            "🟡 Hufflepuff — sodiq, mehnatkash va adolatli sehrgarlar uyi. Bu yerda har kim o‘z o‘rnini topadi.\n\n"
+            
+            "🤝 Xush kelibsan!"
+        ),
         "emoji": "🦡"
     }
 }
@@ -139,6 +170,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
