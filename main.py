@@ -103,16 +103,25 @@ async def get_photo_id(message: types.Message):
     file_id = message.photo[-1].file_id
     await message.reply(f"🖼 <b>Rasm ID:</b>\n<code>{file_id}</code>", parse_mode="HTML")
 
-# --- YANGI A'ZO KELGANDA ---
+# --- YANGI A'ZO KELGANDA (KIRISH XABARINI O'CHIRISH VA KUTIB OLISH) ---
 @dp.message(F.new_chat_members)
 async def welcome_new_member(message: types.Message):
+    # 1. "Guruhga qo'shildi" degan xabarni o'chirib tashlaymiz
+    try:
+        await message.delete()
+    except Exception as e:
+        # Agar bot admin bo'lmasa yoki xatolik bo'lsa, logga yozib qo'yamiz
+        logging.warning(f"Kirish xabarini o'chirolmadim: {e}")
+
+    # 2. Keyin esa o'zimizning "Sorting Hat" xabarini yuboramiz
     for user in message.new_chat_members:
         if user.id == bot.id: continue
         
-        # O'ZGARISH: Ismni havola (link) ichiga oldik va HTML formatladik
-        caption_text = f"🧙‍♂️ <b>Xush kelibsiz, <a href='tg://user?id={user.id}'>{user.first_name}</a>!</b>\n\nSizni fakultetga taqsimlashimiz kerak."
+        # Ismni MENTION (bosiladigan) qilish
+        user_mention = f"<a href='tg://user?id={user.id}'>{user.first_name}</a>"
         
-        tugma = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🧙 Qalpoqni kiyish", callback_data=f"wear_hat_{user.id}")]])
+        caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak."
+        tugma = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🧙‍♂️ Qalpoqni kiyish", callback_data=f"wear_hat_{user.id}")]])
         
         await bot.send_photo(
             chat_id=message.chat.id, 
@@ -122,6 +131,15 @@ async def welcome_new_member(message: types.Message):
             reply_markup=tugma, 
             parse_mode="HTML"
         )
+
+# --- A'ZO CHIQIB KETGANDA (LEFT XABARINI O'CHIRISH) ---
+@dp.message(F.left_chat_member)
+async def delete_left_message(message: types.Message):
+    try:
+        # "Guruhni tark etdi" xabarini o'chiramiz
+        await message.delete()
+    except Exception as e:
+        logging.warning(f"Chiqish xabarini o'chirolmadim: {e}")
 
 # --- TAQSIMLASH JARAYONI ---
 @dp.callback_query(F.data.startswith("wear_hat_"))
@@ -222,6 +240,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
