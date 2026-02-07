@@ -136,7 +136,11 @@ async def sorting_hat_process(callback: types.CallbackQuery):
     
     house_name = random.choice(list(HOUSES.keys()))
     house_data = HOUSES[house_name]
-    USER_HOUSES[target_id] = house_name
+    USER_HOUSES[target_id] = {
+        "house": house_name,
+        "name": callback.from_user.first_name, # Ismi
+        "mention": f"<a href='tg://user?id={target_id}'>{callback.from_user.first_name}</a>" # Linki
+    }
     
     await callback.message.delete()
     
@@ -154,6 +158,46 @@ async def sorting_hat_process(callback: types.CallbackQuery):
         parse_mode="HTML"
     )
 
+# --- STATISTIKA (RO'YXAT) ---
+@dp.message(Command("statistika"))
+async def show_statistics(message: types.Message):
+    # 1. Ma'lumotlarni yig'amiz
+    stats = {
+        "Gryffindor": [],
+        "Slytherin": [],
+        "Ravenclaw": [],
+        "Hufflepuff": []
+    }
+    
+    for user_id, info in USER_HOUSES.items():
+        h_name = info["house"]
+        if h_name in stats:
+            stats[h_name].append(info["mention"])
+            
+    # 2. Chiroyli matn tuzamiz
+    text = "📜 <b>HOGWARTS O'QUVCHILARI RO'YXATI:</b>\n\n"
+    
+    # Gryffindor
+    text += f"🦁 <b>Gryffindor ({len(stats['Gryffindor'])}):</b>\n"
+    text += ", ".join(stats['Gryffindor']) if stats['Gryffindor'] else "<i>Hozircha hech kim yo'q</i>"
+    text += "\n\n"
+    
+    # Slytherin
+    text += f"🐍 <b>Slytherin ({len(stats['Slytherin'])}):</b>\n"
+    text += ", ".join(stats['Slytherin']) if stats['Slytherin'] else "<i>Hozircha hech kim yo'q</i>"
+    text += "\n\n"
+
+    # Ravenclaw
+    text += f"🦅 <b>Ravenclaw ({len(stats['Ravenclaw'])}):</b>\n"
+    text += ", ".join(stats['Ravenclaw']) if stats['Ravenclaw'] else "<i>Hozircha hech kim yo'q</i>"
+    text += "\n\n"
+
+    # Hufflepuff
+    text += f"🦡 <b>Hufflepuff ({len(stats['Hufflepuff'])}):</b>\n"
+    text += ", ".join(stats['Hufflepuff']) if stats['Hufflepuff'] else "<i>Hozircha hech kim yo'q</i>"
+    
+    await message.reply(text, parse_mode="HTML")
+
 # --- ASOSIY ISHGA TUSHIRISH ---
 async def main():
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -169,6 +213,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
