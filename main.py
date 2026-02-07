@@ -128,30 +128,29 @@ async def welcome_new_member(message: types.Message):
 async def sorting_hat_process(callback: types.CallbackQuery):
     target_id = int(callback.data.split("_")[2])
     
-    # Birovning o'rniga bosib yuborishni oldini olish
     if callback.from_user.id != target_id:
         await callback.answer("Bu siz uchun emas! ✋", show_alert=True)
         return
     
     await callback.answer("Hmm... O'ylayapman...")
     
-    # Fakultetni tasodifiy tanlash
     house_name = random.choice(list(HOUSES.keys()))
     house_data = HOUSES[house_name]
     USER_HOUSES[target_id] = house_name
     
     await callback.message.delete()
     
-    # --- O'ZGARISH SHU YERDA ---
-    # Ismni MENTION (bosiladigan) qilish formulasi:
+    # Ismni MENTION (bosiladigan ko'k yozuv) qilish
     user_mention = f"<a href='tg://user?id={callback.from_user.id}'>{callback.from_user.first_name}</a>"
+    
+    # HOUSES lug'atidagi {mention} so'zini haqiqiy ismga almashtiramiz
+    final_caption = house_data['desc'].format(mention=user_mention)
     
     await bot.send_photo(
         chat_id=callback.message.chat.id,
         message_thread_id=SORTING_TOPIC_ID,
         photo=house_data['id'],
-        # Matn ichiga user_mention ni qo'yamiz
-        caption=f"🎉 {user_mention}, sizning fakultetingiz:\n\n{house_data['desc']}",
+        caption=final_caption, # Ortiqcha so'zlarsiz, faqat tayyor matn
         parse_mode="HTML"
     )
 
@@ -170,6 +169,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
