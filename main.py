@@ -1,3 +1,5 @@
+import json
+import os
 import asyncio
 import logging
 import sys
@@ -14,6 +16,22 @@ API_TOKEN = '8400967993:AAHl9cpqZdDZ7sfe_2Tsmba0PQ2MKMYNS3w'
 # Botni sozlash
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
+
+# --- MA'LUMOTLAR BAZASI (JSON) ---
+DB_FILE = "hogwarts_data.json"
+
+def load_data():
+    if not os.path.exists(DB_FILE):
+        return {}
+    with open(DB_FILE, "r") as file:
+        try:
+            return json.load(file)
+        except json.JSONDecodeError:
+            return {}
+
+def save_data(data):
+    with open(DB_FILE, "w") as file:
+        json.dump(data, file, indent=4)
 
 # --- RASM ID LARINI SHU YERGA YOZING ---
 HAT_IMG_ID = "AgACAgIAAxkBAAMEaYSnRQbDnr2YuCqkbNqQdg8v2W4AAk4OaxscMChI831GZTNaiJsBAAMCAAN5AAM4BA" 
@@ -80,7 +98,8 @@ HOUSES = {
     }
 }
 
-USER_HOUSES = {} 
+RAW_DATA = load_data()
+USER_HOUSES = {int(k): v for k, v in RAW_DATA.items()}
 
 # --- RENDER PORTINI ALDASH UCHUN KICHIK SERVER ---
 async def handle(request):
@@ -156,9 +175,12 @@ async def sorting_hat_process(callback: types.CallbackQuery):
     house_data = HOUSES[house_name]
     USER_HOUSES[target_id] = {
         "house": house_name,
-        "name": callback.from_user.first_name, # Ismi
-        "mention": f"<a href='tg://user?id={target_id}'>{callback.from_user.first_name}</a>" # Linki
+        "name": callback.from_user.first_name,
+        "mention": f"<a href='tg://user?id={target_id}'>{callback.from_user.first_name}</a>"
     }
+    
+    # MUHIM: Har safar o'zgarish bo'lganda faylga yozib qo'yamiz!
+    save_data(USER_HOUSES)
     
     await callback.message.delete()
     
@@ -240,6 +262,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
