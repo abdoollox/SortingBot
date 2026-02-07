@@ -207,7 +207,7 @@ async def show_statistics(message: types.Message):
     
     # Agar status 'administrator' yoki 'creator' bo'lmasa, kod shu yerda to'xtaydi
     if member.status not in ['administrator', 'creator']:
-        await message.reply("⛔️ <b>Bu buyruq faqat guruh adminlari uchun!</b>", parse_mode="HTML")
+        await message.reply("⛔️ <b>Bu buyruq faqat Hogwarts direktori uchun!</b>", parse_mode="HTML")
         return
 
     # 2. Ma'lumotlarni yig'amiz (Agar admin bo'lsa, kod davom etadi)
@@ -262,6 +262,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
