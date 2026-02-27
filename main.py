@@ -9,6 +9,8 @@ from aiohttp import web # Render portini band qilish uchun
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from aiogram.types.web_app_info import WebAppInfo
 
 # --- SOZLAMALAR ---
 API_TOKEN = '8400967993:AAHl9cpqZdDZ7sfe_2Tsmba0PQ2MKMYNS3w'
@@ -273,21 +275,62 @@ async def show_statistics(message: types.Message):
 # --- LICHKADA YOKI QIDIRUV ORQALI KELGANLAR UCHUN (/start) ---
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
-    user = message.from_user
-    user_mention = f"<a href='tg://user?id={user.id}'>{user.first_name}</a>"
+    user_id = message.from_user.id
     
-    caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak."
-    tugma = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🎩 Qalpoqni kiyish", callback_data=f"wear_hat_{user.id}")]])
+    # MUHIM: Agar bazada allaqachon bo'lsa, qayta test ishlashga yo'l qo'ymaymiz
+    if user_id in USER_HOUSES:
+        await message.reply("✋ Siz allaqachon fakultetingizni topgansiz. Natijani guruhdan yoki /statistika dan ko'rishingiz mumkin.")
+        return
+
+    user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
+    caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak. Pastdagi tugmani bosib testni boshlang."
     
-    # Shaxsiy chatda topic bo'lmaydi
-    thread_id = None if message.chat.type == 'private' else SORTING_TOPIC_ID
+    # Inline emas, Reply Keyboard orqali WebApp ni ulaymiz
+    web_app_btn = KeyboardButton(
+        text="🎩 Qalpoqni kiyish", 
+        web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
+    )
+    keyboard = ReplyKeyboardMarkup(keyboard=[[web_app_btn]], resize_keyboard=True)
     
     await bot.send_photo(
         chat_id=message.chat.id, 
-        message_thread_id=thread_id, 
         photo=HAT_IMG_ID, 
         caption=caption_text, 
-        reply_markup=tugma, 
+        reply_markup=keyboard, 
+        parse_mode="HTML"
+    )
+
+# --- WEB APP DAN KELGAN NATIJANI QABUL QILISH ---
+@dp.message(F.web_app_data)
+async def web_app_handler(message: types.Message):
+    user_id = message.from_user.id
+    house_name = message.web_app_data.data # JS dan kelgan text (Gryffindor, Slytherin...)
+    
+    if house_name not in HOUSES:
+        return # Noma'lum ma'lumot kelsa, to'xtatamiz
+
+    house_data = HOUSES[house_name]
+    
+    # Bazaga yozish
+    USER_HOUSES[user_id] = {
+        "house": house_name,
+        "name": message.from_user.first_name,
+        "mention": f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
+    }
+    save_data(USER_HOUSES)
+    
+    # Kutish effekti (Shlyapa o'ylayapti)
+    await message.answer("🤔 <b>Hmm... Qiyin masala... O'ylayapman...</b>", parse_mode="HTML", reply_markup=ReplyKeyboardRemove())
+    await asyncio.sleep(3)
+    
+    # Yakuniy natija
+    user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
+    final_caption = house_data['desc'].format(mention=user_mention)
+    
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=house_data['id'],
+        caption=final_caption,
         parse_mode="HTML"
     )
     
@@ -306,6 +349,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
