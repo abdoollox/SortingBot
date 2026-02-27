@@ -122,6 +122,27 @@ async def get_photo_id(message: types.Message):
     file_id = message.photo[-1].file_id
     await message.reply(f"🖼 <b>Rasm ID:</b>\n<code>{file_id}</code>", parse_mode="HTML")
 
+# --- LICHKADA YOKI QIDIRUV ORQALI KELGANLAR UCHUN (/start) ---
+@dp.message(Command("start"))
+async def cmd_start(message: types.Message):
+    user = message.from_user
+    user_mention = f"<a href='tg://user?id={user.id}'>{user.first_name}</a>"
+    
+    caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak."
+    tugma = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🎩 Qalpoqni kiyish", callback_data=f"wear_hat_{user.id}")]])
+    
+    # Shaxsiy chatda topic bo'lmaydi, shuning uchun thread_id ni to'g'rilaymiz
+    thread_id = None if message.chat.type == 'private' else SORTING_TOPIC_ID
+    
+    await bot.send_photo(
+        chat_id=message.chat.id, 
+        message_thread_id=thread_id, 
+        photo=HAT_IMG_ID, 
+        caption=caption_text, 
+        reply_markup=tugma, 
+        parse_mode="HTML"
+    )
+
 # --- YANGI A'ZO KELGANDA (KIRISH XABARINI O'CHIRISH VA KUTIB OLISH) ---
 @dp.message(F.new_chat_members)
 async def welcome_new_member(message: types.Message):
@@ -192,19 +213,24 @@ async def sorting_hat_process(callback: types.CallbackQuery):
     }
     save_data(USER_HOUSES)
     
-    # 4. NATIJANI GURUHGA CHIQARISH
-    await callback.message.delete() # Eski "shlyapa kiyish" xabarini o'chiramiz
+   # 4. NATIJANI CHIQARISH
+    await callback.message.delete()
     
     user_mention = f"<a href='tg://user?id={callback.from_user.id}'>{callback.from_user.first_name}</a>"
     final_caption = house_data['desc'].format(mention=user_mention)
     
+    # MUHIM O'ZGARISH: Chat turini aniqlash
+    is_private = callback.message.chat.type == 'private'
+    thread_id = None if is_private else SORTING_TOPIC_ID
+    
     await bot.send_photo(
         chat_id=callback.message.chat.id,
-        message_thread_id=SORTING_TOPIC_ID,
+        message_thread_id=thread_id,
         photo=house_data['id'],
         caption=final_caption,
         parse_mode="HTML"
     )
+
 # --- STATISTIKA (RO'YXAT) - ANONIM ADMINLARNI HAM QO'LLAB-QUVVATLAYDI ---
 @dp.message(Command("statistika"))
 async def show_statistics(message: types.Message):
@@ -280,6 +306,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
