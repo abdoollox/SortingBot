@@ -122,27 +122,6 @@ async def get_photo_id(message: types.Message):
     file_id = message.photo[-1].file_id
     await message.reply(f"🖼 <b>Rasm ID:</b>\n<code>{file_id}</code>", parse_mode="HTML")
 
-# --- LICHKADA YOKI QIDIRUV ORQALI KELGANLAR UCHUN (/start) ---
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    user = message.from_user
-    user_mention = f"<a href='tg://user?id={user.id}'>{user.first_name}</a>"
-    
-    caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak."
-    tugma = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🎩 Qalpoqni kiyish", callback_data=f"wear_hat_{user.id}")]])
-    
-    # Shaxsiy chatda topic bo'lmaydi, shuning uchun thread_id ni to'g'rilaymiz
-    thread_id = None if message.chat.type == 'private' else SORTING_TOPIC_ID
-    
-    await bot.send_photo(
-        chat_id=message.chat.id, 
-        message_thread_id=thread_id, 
-        photo=HAT_IMG_ID, 
-        caption=caption_text, 
-        reply_markup=tugma, 
-        parse_mode="HTML"
-    )
-
 # --- YANGI A'ZO KELGANDA (KIRISH XABARINI O'CHIRISH VA KUTIB OLISH) ---
 @dp.message(F.new_chat_members)
 async def welcome_new_member(message: types.Message):
@@ -291,6 +270,27 @@ async def show_statistics(message: types.Message):
     
     await message.reply(text, parse_mode="HTML")
 
+# --- LICHKADA YOKI QIDIRUV ORQALI KELGANLAR UCHUN (/start) ---
+@dp.message(Command("start"))
+async def cmd_start(message: types.Message):
+    user = message.from_user
+    user_mention = f"<a href='tg://user?id={user.id}'>{user.first_name}</a>"
+    
+    caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak."
+    tugma = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🎩 Qalpoqni kiyish", callback_data=f"wear_hat_{user.id}")]])
+    
+    # Shaxsiy chatda topic bo'lmaydi
+    thread_id = None if message.chat.type == 'private' else SORTING_TOPIC_ID
+    
+    await bot.send_photo(
+        chat_id=message.chat.id, 
+        message_thread_id=thread_id, 
+        photo=HAT_IMG_ID, 
+        caption=caption_text, 
+        reply_markup=tugma, 
+        parse_mode="HTML"
+    )
+    
 # --- ASOSIY ISHGA TUSHIRISH ---
 async def main():
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -306,6 +306,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
