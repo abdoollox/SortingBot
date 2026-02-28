@@ -277,15 +277,35 @@ async def show_statistics(message: types.Message):
 async def cmd_start(message: types.Message):
     user_id = message.from_user.id
     
-    # MUHIM: Agar bazada allaqachon bo'lsa, qayta test ishlashga yo'l qo'ymaymiz
+    # 1 va 2-MUAMMOLAR YECHIMI: Eski foydalanuvchilarni kutib olish
     if user_id in USER_HOUSES:
-        await message.reply("✋ Siz allaqachon fakultetingizni topgansiz. Natijani guruhdan yoki /statistika dan ko'rishingiz mumkin.")
+        current_house = USER_HOUSES[user_id]["house"]
+        house_data = HOUSES[current_house]
+        
+        caption_text = (
+            f"✋ Siz allaqachon <b>{current_house}</b> {house_data['emoji']} fakultetiga taqsimlangansiz!\n\n"
+            "Fikringizni o'zgartirdingizmi yoki qayta sinab ko'rmoqchimisiz? Pastdagi tugma orqali testni qayta ishlashingiz mumkin."
+        )
+        
+        web_app_btn = KeyboardButton(
+            text="🎩 Qayta kiyish", 
+            web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
+        )
+        keyboard = ReplyKeyboardMarkup(keyboard=[[web_app_btn]], resize_keyboard=True)
+        
+        await bot.send_photo(
+            chat_id=message.chat.id, 
+            photo=house_data['id'], # Mijozga o'zining joriy fakulteti rasmini ko'rsatamiz
+            caption=caption_text, 
+            reply_markup=keyboard, 
+            parse_mode="HTML"
+        )
         return
 
+    # YANGI FOYDALANUVCHILAR UCHUN
     user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
     caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak. Pastdagi tugmani bosib testni boshlang."
     
-    # Inline emas, Reply Keyboard orqali WebApp ni ulaymiz
     web_app_btn = KeyboardButton(
         text="🎩 Qalpoqni kiyish", 
         web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
@@ -299,7 +319,6 @@ async def cmd_start(message: types.Message):
         reply_markup=keyboard, 
         parse_mode="HTML"
     )
-
 # --- WEB APP DAN KELGAN NATIJANI QABUL QILISH ---
 @dp.message(F.web_app_data)
 async def web_app_handler(message: types.Message):
@@ -349,6 +368,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
