@@ -358,10 +358,18 @@ async def cmd_start(message: types.Message, command: CommandObject):
             user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
             final_caption = house_data['desc'].format(mention=user_mention)
             
+            # YANGILANISH: Natija tagiga ham "Qayta kiyish" tugmasini qo'shamiz
+            web_app_btn = InlineKeyboardButton(
+                text="🎩 Qayta kiyish", 
+                web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
+            )
+            keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
+            
             await bot.send_photo(
                 chat_id=message.chat.id,
                 photo=house_data['id'],
                 caption=final_caption,
+                reply_markup=keyboard, # Tugmani shu yerga bog'laymiz
                 parse_mode="HTML"
             )
         return
@@ -426,6 +434,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
