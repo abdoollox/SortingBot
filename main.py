@@ -11,6 +11,7 @@ from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.types.web_app_info import WebAppInfo
+from aiogram.filters import CommandStart, CommandObject
 
 # --- SOZLAMALAR ---
 API_TOKEN = '8400967993:AAHl9cpqZdDZ7sfe_2Tsmba0PQ2MKMYNS3w'
@@ -319,37 +320,94 @@ async def cmd_start(message: types.Message):
         reply_markup=keyboard, 
         parse_mode="HTML"
     )
-# --- WEB APP DAN KELGAN NATIJANI QABUL QILISH ---
-@dp.message(F.web_app_data)
-async def web_app_handler(message: types.Message):
+    
+# --- LICHKADA YOKI DEEP LINK ORQALI KELGANLAR UCHUN (/start) ---
+@dp.message(CommandStart())
+async def cmd_start(message: types.Message, command: CommandObject):
     user_id = message.from_user.id
-    house_name = message.web_app_data.data # JS dan kelgan text (Gryffindor, Slytherin...)
     
-    if house_name not in HOUSES:
-        return # Noma'lum ma'lumot kelsa, to'xtatamiz
+    # 1. FOYDALANUVCHI TALABI: Qolgan /start xabarini darrov o'chiramiz
+    try:
+        await message.delete()
+    except Exception as e:
+        logging.warning(f"Xabarni o'chirib bo'lmadi: {e}")
 
-    house_data = HOUSES[house_name]
+    # 2. DEEP LINK TEKSHIRUVI (WebApp dan natija qaytsa)
+    args = command.args # Masalan: "res_Gryffindor"
     
-    # Bazaga yozish
-    USER_HOUSES[user_id] = {
-        "house": house_name,
-        "name": message.from_user.first_name,
-        "mention": f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
-    }
-    save_data(USER_HOUSES)
-    
-    # Kutish effekti (Shlyapa o'ylayapti)
-    await message.answer("🤔 <b>Hmm... Qiyin masala... O'ylayapman...</b>", parse_mode="HTML", reply_markup=ReplyKeyboardRemove())
-    await asyncio.sleep(3)
-    
-    # Yakuniy natija
+    if args and args.startswith("res_"):
+        house_name = args.replace("res_", "")
+        
+        if house_name in HOUSES:
+            house_data = HOUSES[house_name]
+            
+            # Bazaga yozish
+            USER_HOUSES[user_id] = {
+                "house": house_name,
+                "name": message.from_user.first_name,
+                "mention": f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
+            }
+            save_data(USER_HOUSES)
+            
+            # Shlyapaning o'ylash animatsiyasi (UX uchun)
+            msg = await message.answer("🤔 <b>Hmm... Qiyin masala... O'ylayapman...</b>", parse_mode="HTML")
+            await asyncio.sleep(2)
+            await msg.delete() # O'ylash xabarini ham o'chiramiz
+            
+            # Yakuniy natija
+            user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
+            final_caption = house_data['desc'].format(mention=user_mention)
+            
+            await bot.send_photo(
+                chat_id=message.chat.id,
+                photo=house_data['id'],
+                caption=final_caption,
+                parse_mode="HTML"
+            )
+        return
+
+    # 3. ESKI FOYDALANUVCHILAR UCHUN
+    if user_id in USER_HOUSES:
+        current_house = USER_HOUSES[user_id]["house"]
+        house_data = HOUSES[current_house]
+        
+        caption_text = (
+            f"✋ Siz allaqachon <b>{current_house}</b> {house_data['emoji']} fakultetiga taqsimlangansiz!\n\n"
+            "Fikringizni o'zgartirdingizmi yoki qayta sinab ko'rmoqchimisiz? Pastdagi tugma orqali testni qayta ishlashingiz mumkin."
+        )
+        
+        # INLINE TUGMA (Xabar tagida)
+        web_app_btn = InlineKeyboardButton(
+            text="🎩 Qayta kiyish", 
+            web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
+        )
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
+        
+        await bot.send_photo(
+            chat_id=message.chat.id, 
+            photo=house_data['id'], 
+            caption=caption_text, 
+            reply_markup=keyboard, 
+            parse_mode="HTML"
+        )
+        return
+
+    # 4. YANGI FOYDALANUVCHILAR UCHUN
     user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
-    final_caption = house_data['desc'].format(mention=user_mention)
+    caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak. Pastdagi tugmani bosib testni boshlang."
+    
+    # INLINE TUGMA (Xabar tagida)
+    web_app_btn = InlineKeyboardButton(
+        text="🎩 Qalpoqni kiyish", 
+        web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
+    )
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
     
     await bot.send_photo(
-        chat_id=message.chat.id,
-        photo=house_data['id'],
-        caption=final_caption,
+        chat_id=message.chat.id, 
+        photo=HAT_IMG_ID, 
+        caption=caption_text, 
+        reply_markup=keyboard, 
         parse_mode="HTML"
     )
     
@@ -368,6 +426,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
