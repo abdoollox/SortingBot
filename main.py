@@ -286,35 +286,56 @@ async def cmd_start(message: types.Message, command: CommandObject):
         logging.warning(f"Xabarni o'chirib bo'lmadi: {e}")
 
     # 2. DEEP LINK TEKSHIRUVI (WebApp dan natija qaytsa)
-    args = command.args # MUHIM: Shu qatorni o'chirib yuborgan eding!
+    args = command.args 
     
     if args and args.startswith("res_"):
-        house_name = args.replace("res_", "")
+        parts = args.split("_")
+        
+        # Eski format (faqat res_Gryffindor) kelsa xato bermasligi uchun himoya
+        if len(parts) >= 6:
+            house_name = parts[1]
+            g_pts, s_pts, r_pts, h_pts = int(parts[2]), int(parts[3]), int(parts[4]), int(parts[5])
+        else:
+            house_name = parts[1]
+            g_pts, s_pts, r_pts, h_pts = 5, 0, 0, 0 # Zaxira qiymat
         
         if house_name in HOUSES:
             house_data = HOUSES[house_name]
             
-            # 1. BAZAGA YOZISH VA KLUBDAGI HOLATINI TEKSHIRISH
             USER_HOUSES[user_id] = {
                 "house": house_name,
                 "name": message.from_user.first_name,
                 "mention": f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>",
-                "in_club": False # Boshlang'ich holat
+                "in_club": False 
             }
             
-            # Bot foydalanuvchini guruhda bor yoki yo'qligini tekshiradi
             try:
                 member = await bot.get_chat_member(chat_id=GROUP_CHAT_ID, user_id=user_id)
                 if member.status in ['member', 'administrator', 'creator', 'restricted']:
                     USER_HOUSES[user_id]["in_club"] = True
             except Exception:
-                pass # Guruhda yo'q yoki bot admin emas
+                pass 
                 
             save_data(USER_HOUSES)
             
-            # Yakuniy natija (Lichkaga)
+            # --- YANGI MANTIQ: FOIZLAR VA BAR CHART YASASH ---
+            def make_bar(pts, color_emoji):
+                blocks = pts  # 1 ball = 1 ta rangli blok (20%)
+                empty = 5 - pts # Qolgani qora blok
+                return (color_emoji * blocks) + ("⬛️" * empty)
+            
+            stats_text = (
+                f"\n\n📊 <b>Sizning psixologik tahlilingiz:</b>\n"
+                f"🦁 Gryffindor: {g_pts * 20}% [{make_bar(g_pts, '🟥')}]\n"
+                f"🐍 Slytherin: {s_pts * 20}% [{make_bar(s_pts, '🟩')}]\n"
+                f"🦅 Ravenclaw: {r_pts * 20}% [{make_bar(r_pts, '🟦')}]\n"
+                f"🦡 Hufflepuff: {h_pts * 20}% [{make_bar(h_pts, '🟨')}]"
+            )
+            
             user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
-            final_caption = house_data['desc'].format(mention=user_mention)
+            
+            # Asosiy matnga stastistikani qo'shamiz
+            final_caption = house_data['desc'].format(mention=user_mention) + stats_text
             
             web_app_btn = InlineKeyboardButton(
                 text="🧙 Qayta kiyish", 
@@ -330,7 +351,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
                 parse_mode="HTML"
             )
 
-            # 2. FAQAT KLUBDA BO'LSA E'LON QILAMIZ
+            # Faqat klubda bo'lsa e'lon qilamiz
             if USER_HOUSES[user_id]["in_club"]:
                 try:
                     await bot.send_photo(
@@ -404,6 +425,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
