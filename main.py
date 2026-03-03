@@ -312,7 +312,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
             
             # YANGILANISH: Natija tagiga ham "Qayta kiyish" tugmasini qo'shamiz
             web_app_btn = InlineKeyboardButton(
-                text="🎩 Qayta kiyish", 
+                text="🧙 Qayta kiyish", 
                 web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
             )
             keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
@@ -338,7 +338,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
         
         # 1-TEKSHIRUV: InlineKeyboardButton va InlineKeyboardMarkup bo'lishi shart
         web_app_btn = InlineKeyboardButton(
-            text="🎩 Qayta kiyish", 
+            text="🧙 Qayta kiyish", 
             web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
         )
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
@@ -358,7 +358,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
     
     # INLINE TUGMA (Xabar tagida)
     web_app_btn = InlineKeyboardButton(
-        text="🎩 Qalpoqni kiyish", 
+        text="🧙 Qalpoqni kiyish", 
         web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
@@ -386,6 +386,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
