@@ -272,54 +272,6 @@ async def show_statistics(message: types.Message):
     text += ", ".join(stats['Hufflepuff']) if stats['Hufflepuff'] else "<i>Hozircha hech kim yo'q</i>"
     
     await message.reply(text, parse_mode="HTML")
-
-# --- LICHKADA YOKI QIDIRUV ORQALI KELGANLAR UCHUN (/start) ---
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    user_id = message.from_user.id
-    
-    # 1 va 2-MUAMMOLAR YECHIMI: Eski foydalanuvchilarni kutib olish
-    if user_id in USER_HOUSES:
-        current_house = USER_HOUSES[user_id]["house"]
-        house_data = HOUSES[current_house]
-        
-        caption_text = (
-            f"✋ Siz allaqachon <b>{current_house}</b> {house_data['emoji']} fakultetiga taqsimlangansiz!\n\n"
-            "Fikringizni o'zgartirdingizmi yoki qayta sinab ko'rmoqchimisiz? Pastdagi tugma orqali testni qayta ishlashingiz mumkin."
-        )
-        
-        web_app_btn = KeyboardButton(
-            text="🎩 Qayta kiyish", 
-            web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
-        )
-        keyboard = ReplyKeyboardMarkup(keyboard=[[web_app_btn]], resize_keyboard=True)
-        
-        await bot.send_photo(
-            chat_id=message.chat.id, 
-            photo=house_data['id'], # Mijozga o'zining joriy fakulteti rasmini ko'rsatamiz
-            caption=caption_text, 
-            reply_markup=keyboard, 
-            parse_mode="HTML"
-        )
-        return
-
-    # YANGI FOYDALANUVCHILAR UCHUN
-    user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
-    caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak. Pastdagi tugmani bosib testni boshlang."
-    
-    web_app_btn = KeyboardButton(
-        text="🎩 Qalpoqni kiyish", 
-        web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
-    )
-    keyboard = ReplyKeyboardMarkup(keyboard=[[web_app_btn]], resize_keyboard=True)
-    
-    await bot.send_photo(
-        chat_id=message.chat.id, 
-        photo=HAT_IMG_ID, 
-        caption=caption_text, 
-        reply_markup=keyboard, 
-        parse_mode="HTML"
-    )
     
 # --- LICHKADA YOKI DEEP LINK ORQALI KELGANLAR UCHUN (/start) ---
 @dp.message(CommandStart())
@@ -434,6 +386,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
