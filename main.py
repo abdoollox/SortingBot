@@ -318,20 +318,23 @@ async def cmd_start(message: types.Message, command: CommandObject):
                 
             save_data(USER_HOUSES)
             
-            # --- YANGI MANTIQ: FOIZLAR VA BAR CHART YASASH (MOBILE UX) ---
+            # --- YANGI MANTIQ: FOIZLAR VA BAR CHART YASASH (MOBILE RESPONSIVE) ---
             def make_bar(pts, color_emoji):
                 blocks = pts  
                 empty = 5 - pts 
                 return (color_emoji * blocks) + ("⬛" * empty)
             
-            # MUHIM O'ZGARISH: Telegramning "Monospace" shriftidan foydalanamiz va joylarni tenglaymiz.
-            # >3 bu foizlarni (0%, 20%, 100%) o'ng tomonga tekislab, bir xil joy egallashini ta'minlaydi.
+            # MUHIM O'ZGARISH: Tor ekranlar uchun vertikal (Mobile-First) dizayn
             stats_text = (
                 f"\n\n📊 <b>Psixologik tahlil:</b>\n"
-                f"<code>Gryffindor : {g_pts * 20:>3}%</code> [{make_bar(g_pts, '🟥')}]\n"
-                f"<code>Ravenclaw  : {r_pts * 20:>3}%</code> [{make_bar(r_pts, '🟦')}]\n"
-                f"<code>Slytherin  : {s_pts * 20:>3}%</code> [{make_bar(s_pts, '🟩')}]\n"
-                f"<code>Hufflepuff : {h_pts * 20:>3}%</code> [{make_bar(h_pts, '🟨')}]"
+                f"🦁 <b>Gryffindor: {g_pts * 20}%</b>\n"
+                f"↳ {make_bar(g_pts, '🟥')}\n"
+                f"🦅 <b>Ravenclaw: {r_pts * 20}%</b>\n"
+                f"↳ {make_bar(r_pts, '🟦')}\n"
+                f"🐍 <b>Slytherin: {s_pts * 20}%</b>\n"
+                f"↳ {make_bar(s_pts, '🟩')}\n"
+                f"🦡 <b>Hufflepuff: {h_pts * 20}%</b>\n"
+                f"↳ {make_bar(h_pts, '🟨')}"
             )
             
             user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
@@ -427,5 +430,6 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
