@@ -304,7 +304,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
             )
             keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
             
-           await bot.send_photo(
+            await bot.send_photo( # <--- SHU YERDAGI PROBEL TO'G'IRLANDI
                 chat_id=message.chat.id,
                 photo=house_data['id'],
                 caption=final_caption,
@@ -385,6 +385,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
