@@ -44,6 +44,7 @@ RAVENCLAW_ID = "AgACAgIAAxkBAAMLaYXJiweH5Eh-GTvd5Ht6L66WCjQAAtoTaxtyUClIkKj5p860
 HUFFLEPUFF_ID = "AgACAgIAAxkBAAMNaYXKHqkLLw-QQufj4D533Ld9QB8AAuQTaxtyUClIP6F1JQTQnokBAAMCAAN5AAM4BA"
 
 SORTING_TOPIC_ID = 505 # Agar guruhda topic bo'lmasa None, bo'lsa raqamini yozing
+GROUP_CHAT_ID = -1003369300068
 
 # Faqat shundan keyingina HOUSES lug'ati kelishi kerak
 HOUSES = {
@@ -128,22 +129,32 @@ async def get_photo_id(message: types.Message):
 # --- YANGI A'ZO KELGANDA (KIRISH XABARINI O'CHIRISH VA KUTIB OLISH) ---
 @dp.message(F.new_chat_members)
 async def welcome_new_member(message: types.Message):
-    # 1. "Guruhga qo'shildi" degan xabarni o'chirib tashlaymiz
     try:
         await message.delete()
     except Exception as e:
-        # Agar bot admin bo'lmasa yoki xatolik bo'lsa, logga yozib qo'yamiz
         logging.warning(f"Kirish xabarini o'chirolmadim: {e}")
 
-    # 2. Keyin esa o'zimizning "Sorting Hat" xabarini yuboramiz
+    bot_info = await bot.get_me() # Botning yuzerini avtomatik olish
+
     for user in message.new_chat_members:
         if user.id == bot.id: continue
         
-        # Ismni MENTION (bosiladigan) qilish
         user_mention = f"<a href='tg://user?id={user.id}'>{user.first_name}</a>"
         
-        caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak."
-        tugma = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🧙‍♂️ Qalpoqni kiyish", callback_data=f"wear_hat_{user.id}")]])
+        # 1-JARAYON (Flow 1): Agar mijoz avval test yechgan bo'lsa
+        if user.id in USER_HOUSES:
+            caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSiz allaqachon testdan o'tgansiz. Fakultetingizni guruhda e'lon qilish uchun qalpoqni kiying."
+            tugma = InlineKeyboardMarkup(inline_keyboard=[[
+                InlineKeyboardButton(text="🎩 Fakultetimni e'lon qilish", callback_data=f"wear_hat_{user.id}")
+            ]])
+        
+        # 2-JARAYON (Flow 2): Agar mijoz test yechmagan bo'lsa
+        else:
+            bot_url = f"https://t.me/{bot_info.username}?start=sort"
+            caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nFakultetingizni aniqlash uchun botga o'tib, maxsus testni yechishingiz kerak."
+            tugma = InlineKeyboardMarkup(inline_keyboard=[[
+                InlineKeyboardButton(text="🪄 Shaxsiyda test ishlash", url=bot_url)
+            ]])
         
         await bot.send_photo(
             chat_id=message.chat.id, 
@@ -153,7 +164,6 @@ async def welcome_new_member(message: types.Message):
             reply_markup=tugma, 
             parse_mode="HTML"
         )
-
 # --- A'ZO CHIQIB KETGANDA (LEFT XABARINI O'CHIRISH) ---
 @dp.message(F.left_chat_member)
 async def delete_left_message(message: types.Message):
@@ -163,51 +173,33 @@ async def delete_left_message(message: types.Message):
     except Exception as e:
         logging.warning(f"Chiqish xabarini o'chirolmadim: {e}")
 
-# --- TAQSIMLASH JARAYONI (ALERT BILAN) ---
+# --- TAQSIMLASH JARAYONI (GURUHDA E'LON QILISH) ---
 @dp.callback_query(F.data.startswith("wear_hat_"))
 async def sorting_hat_process(callback: types.CallbackQuery):
     target_id = int(callback.data.split("_")[2])
     
-    # 1. Birovning o'rniga bosib yuborishni oldini olish
     if callback.from_user.id != target_id:
         await callback.answer("Bu siz uchun emas! ✋", show_alert=True)
         return
     
-    # 2. "O'YLASH" JARAYONI (ALERT OYNASIDA)
-    # show_alert=True qilsak, ekranda OK tugmasi bor oyna chiqadi
-    await callback.answer(
-        text="🤔 Hmm... Qiyin masala...\n\nAql bor, jasorat ham yetarli...\nIste'dod ham yo'q emas...\n\nXo'sh, qayerga joylashtirsam ekan-a?",
-        show_alert=True 
-    )
-    
-    # User alertni o'qib bo'lguncha biroz kutamiz (animatsiya effekti uchun)
-    await asyncio.sleep(10) 
-
-    # 3. FAKULTETNI ANIQLASH
-    house_name = random.choice(list(HOUSES.keys()))
+    # Ehtiyot chorasi: Agar bazada bo'lmasa, uni testga yuboramiz
+    if target_id not in USER_HOUSES:
+        await callback.answer("Siz hali test ishlamagansiz! Avval shaxsiyda test yeching.", show_alert=True)
+        return
+        
+    # MUHIM O'ZGARISH: Tasodifiy emas, bazadagi haqiqiy natijani olamiz
+    house_name = USER_HOUSES[target_id]["house"]
     house_data = HOUSES[house_name]
     
-    # Bazaga yozish
-    USER_HOUSES[target_id] = {
-        "house": house_name,
-        "name": callback.from_user.first_name,
-        "mention": f"<a href='tg://user?id={target_id}'>{callback.from_user.first_name}</a>"
-    }
-    save_data(USER_HOUSES)
-    
-   # 4. NATIJANI CHIQARISH
+    await callback.answer("Ma'lumotlaringiz o'qilmoqda...", show_alert=False)
     await callback.message.delete()
     
-    user_mention = f"<a href='tg://user?id={callback.from_user.id}'>{callback.from_user.first_name}</a>"
+    user_mention = f"<a href='tg://user?id={target_id}'>{callback.from_user.first_name}</a>"
     final_caption = house_data['desc'].format(mention=user_mention)
-    
-    # MUHIM O'ZGARISH: Chat turini aniqlash
-    is_private = callback.message.chat.type == 'private'
-    thread_id = None if is_private else SORTING_TOPIC_ID
     
     await bot.send_photo(
         chat_id=callback.message.chat.id,
-        message_thread_id=thread_id,
+        message_thread_id=SORTING_TOPIC_ID,
         photo=house_data['id'],
         caption=final_caption,
         parse_mode="HTML"
@@ -312,13 +304,25 @@ async def cmd_start(message: types.Message, command: CommandObject):
             )
             keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
             
-            await bot.send_photo(
+           await bot.send_photo(
                 chat_id=message.chat.id,
                 photo=house_data['id'],
                 caption=final_caption,
-                reply_markup=keyboard, # Tugmani shu yerga bog'laymiz
+                reply_markup=keyboard,
                 parse_mode="HTML"
             )
+
+            # YANGI MANTIQ: Natijani darhol guruhga ham yuboramiz (Flow 2 ni yakunlash)
+            try:
+                await bot.send_photo(
+                    chat_id=GROUP_CHAT_ID, # 1-qadamda kiritilgan ID
+                    message_thread_id=SORTING_TOPIC_ID,
+                    photo=house_data['id'],
+                    caption=f"📣 <b>Yangi o'quvchi taqsimlandi!</b>\n\n{final_caption}",
+                    parse_mode="HTML"
+                )
+            except Exception as e:
+                logging.warning(f"Guruhga e'lon qilib bo'lmadi. GROUP_CHAT_ID xato bo'lishi mumkin: {e}")
         return
 
     # 3. ESKI FOYDALANUVCHILAR UCHUN
@@ -381,6 +385,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
