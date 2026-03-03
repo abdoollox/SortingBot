@@ -320,16 +320,17 @@ async def cmd_start(message: types.Message, command: CommandObject):
             
             # --- YANGI MANTIQ: FOIZLAR VA BAR CHART YASASH ---
             def make_bar(pts, color_emoji):
-                blocks = pts  # 1 ball = 1 ta rangli blok (20%)
-                empty = 5 - pts # Qolgani qora blok
-                return (color_emoji * blocks) + ("⬛️" * empty)
+                blocks = pts  
+                empty = 5 - pts 
+                return (color_emoji * blocks) + ("⬛" * empty)
             
+            # MUHIM O'ZGARISH: Grafiklar eng boshiga o'tkazildi (Mukammal tekislik uchun)
             stats_text = (
                 f"\n\n📊 <b>Sizning psixologik tahlilingiz:</b>\n"
-                f"🦁 Gryffindor: {g_pts * 20}% [{make_bar(g_pts, '🟥')}]\n"
-                f"🐍 Slytherin: {s_pts * 20}% [{make_bar(s_pts, '🟩')}]\n"
-                f"🦅 Ravenclaw: {r_pts * 20}% [{make_bar(r_pts, '🟦')}]\n"
-                f"🦡 Hufflepuff: {h_pts * 20}% [{make_bar(h_pts, '🟨')}]"
+                f"[{make_bar(g_pts, '🟥')}] <b>{g_pts * 20}%</b> — 🦁 Gryffindor\n"
+                f"[{make_bar(r_pts, '🟦')}] <b>{r_pts * 20}%</b> — 🦅 Ravenclaw\n"
+                f"[{make_bar(s_pts, '🟩')}] <b>{s_pts * 20}%</b> — 🐍 Slytherin\n"
+                f"[{make_bar(h_pts, '🟨')}] <b>{h_pts * 20}%</b> — 🦡 Hufflepuff"
             )
             
             user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
@@ -425,3 +426,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
