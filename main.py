@@ -286,7 +286,12 @@ async def cmd_start(message: types.Message, command: CommandObject):
         logging.warning(f"Xabarni o'chirib bo'lmadi: {e}")
 
     # 2. DEEP LINK TEKSHIRUVI (WebApp dan natija qaytsa)
-    if house_name in HOUSES:
+    args = command.args # MUHIM: Shu qatorni o'chirib yuborgan eding!
+    
+    if args and args.startswith("res_"):
+        house_name = args.replace("res_", "")
+        
+        if house_name in HOUSES:
             house_data = HOUSES[house_name]
             
             # 1. BAZAGA YOZISH VA KLUBDAGI HOLATINI TEKSHIRISH
@@ -399,6 +404,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
