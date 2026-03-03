@@ -328,13 +328,13 @@ async def cmd_start(message: types.Message, command: CommandObject):
             stats_text = (
                 f"\n\n📊 <b>Psixologik tahlil:</b>\n"
                 f"🦁 <b>Gryffindor: {g_pts * 20}%</b>\n"
-                f"↳ {make_bar(g_pts, '🟥')}\n"
+                f"└─ {make_bar(g_pts, '🟥')}\n"
                 f"🦅 <b>Ravenclaw: {r_pts * 20}%</b>\n"
-                f"↳ {make_bar(r_pts, '🟦')}\n"
+                f"└─ {make_bar(r_pts, '🟦')}\n"
                 f"🐍 <b>Slytherin: {s_pts * 20}%</b>\n"
-                f"↳ {make_bar(s_pts, '🟩')}\n"
+                f"└─ {make_bar(s_pts, '🟩')}\n"
                 f"🦡 <b>Hufflepuff: {h_pts * 20}%</b>\n"
-                f"↳ {make_bar(h_pts, '🟨')}"
+                f"└─ {make_bar(h_pts, '🟨')}"
             )
             
             user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
@@ -430,6 +430,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
