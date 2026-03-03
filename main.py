@@ -384,7 +384,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
             "Fikringizni o'zgartirdingizmi yoki qayta sinab ko'rmoqchimisiz? Pastdagi tugma orqali testni qayta ishlashingiz mumkin."
         )
         
-        # INLINE TUGMA (Xabar tagida)
+        # 1-TEKSHIRUV: InlineKeyboardButton va InlineKeyboardMarkup bo'lishi shart
         web_app_btn = InlineKeyboardButton(
             text="🎩 Qayta kiyish", 
             web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
@@ -395,7 +395,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
             chat_id=message.chat.id, 
             photo=house_data['id'], 
             caption=caption_text, 
-            reply_markup=keyboard, 
+            reply_markup=keyboard, # 2-TEKSHIRUV: Shu qator xabarga tugmani yopishtiradi!
             parse_mode="HTML"
         )
         return
@@ -434,6 +434,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
