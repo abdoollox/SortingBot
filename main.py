@@ -143,6 +143,9 @@ async def welcome_new_member(message: types.Message):
         
         # 1-JARAYON (Flow 1): Agar mijoz avval test yechgan bo'lsa
         if user.id in USER_HOUSES:
+            USER_HOUSES[user.id]["in_club"] = True # Statusni faollashtiramiz
+            save_data(USER_HOUSES)
+            
             caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSiz allaqachon testdan o'tgansiz. Fakultetingizni guruhda e'lon qilish uchun qalpoqni kiying."
             tugma = InlineKeyboardMarkup(inline_keyboard=[[
                 InlineKeyboardButton(text="🎩 Fakultetimni e'lon qilish", callback_data=f"wear_hat_{user.id}")
@@ -164,14 +167,19 @@ async def welcome_new_member(message: types.Message):
             reply_markup=tugma, 
             parse_mode="HTML"
         )
-# --- A'ZO CHIQIB KETGANDA (LEFT XABARINI O'CHIRISH) ---
+# --- A'ZO CHIQIB KETGANDA (LEFT XABARINI O'CHIRISH VA STATUSNI YANGILASH) ---
 @dp.message(F.left_chat_member)
 async def delete_left_message(message: types.Message):
     try:
-        # "Guruhni tark etdi" xabarini o'chiramiz
         await message.delete()
     except Exception as e:
         logging.warning(f"Chiqish xabarini o'chirolmadim: {e}")
+        
+    left_user_id = message.left_chat_member.id
+    # Agar chiqib ketgan odam bazada bo'lsa, uni klubdan o'chiramiz
+    if left_user_id in USER_HOUSES:
+        USER_HOUSES[left_user_id]["in_club"] = False
+        save_data(USER_HOUSES)
 
 # --- TAQSIMLASH JARAYONI (GURUHDA E'LON QILISH) ---
 @dp.callback_query(F.data.startswith("wear_hat_"))
@@ -228,7 +236,7 @@ async def show_statistics(message: types.Message):
         await message.reply("⛔️ <b>Bu buyruq faqat Hogwarts direktori uchun!</b>", parse_mode="HTML")
         return
 
-    # 2. Ma'lumotlarni yig'amiz (Agar admin bo'lsa, kod davom etadi)
+    # 2. Ma'lumotlarni yig'amiz (Faqat guruhdagilarni)
     stats = {
         "Gryffindor": [],
         "Slytherin": [],
@@ -237,9 +245,10 @@ async def show_statistics(message: types.Message):
     }
     
     for user_id, info in USER_HOUSES.items():
-        h_name = info["house"]
-        if h_name in stats:
-            stats[h_name].append(info["mention"])
+        if info.get("in_club", False): # DIQQAT: Faqat klubdagilar o'tadi
+            h_name = info["house"]
+            if h_name in stats:
+                stats[h_name].append(info["mention"])
             
     # 3. Chiroyli matn tuzamiz
     text = "📜 <b>HOGWARTS O'QUVCHILARI RO'YXATI:</b>\n\n"
@@ -277,34 +286,38 @@ async def cmd_start(message: types.Message, command: CommandObject):
         logging.warning(f"Xabarni o'chirib bo'lmadi: {e}")
 
     # 2. DEEP LINK TEKSHIRUVI (WebApp dan natija qaytsa)
-    args = command.args # Masalan: "res_Gryffindor"
-    
-    if args and args.startswith("res_"):
-        house_name = args.replace("res_", "")
-        
-        if house_name in HOUSES:
+    if house_name in HOUSES:
             house_data = HOUSES[house_name]
             
-            # Bazaga yozish
+            # 1. BAZAGA YOZISH VA KLUBDAGI HOLATINI TEKSHIRISH
             USER_HOUSES[user_id] = {
                 "house": house_name,
                 "name": message.from_user.first_name,
-                "mention": f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
+                "mention": f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>",
+                "in_club": False # Boshlang'ich holat
             }
+            
+            # Bot foydalanuvchini guruhda bor yoki yo'qligini tekshiradi
+            try:
+                member = await bot.get_chat_member(chat_id=GROUP_CHAT_ID, user_id=user_id)
+                if member.status in ['member', 'administrator', 'creator', 'restricted']:
+                    USER_HOUSES[user_id]["in_club"] = True
+            except Exception:
+                pass # Guruhda yo'q yoki bot admin emas
+                
             save_data(USER_HOUSES)
             
-            # Yakuniy natija
+            # Yakuniy natija (Lichkaga)
             user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
             final_caption = house_data['desc'].format(mention=user_mention)
             
-            # YANGILANISH: Natija tagiga ham "Qayta kiyish" tugmasini qo'shamiz
             web_app_btn = InlineKeyboardButton(
                 text="🧙 Qayta kiyish", 
                 web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
             )
             keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
             
-            await bot.send_photo( # <--- SHU YERDAGI PROBEL TO'G'IRLANDI
+            await bot.send_photo(
                 chat_id=message.chat.id,
                 photo=house_data['id'],
                 caption=final_caption,
@@ -312,17 +325,18 @@ async def cmd_start(message: types.Message, command: CommandObject):
                 parse_mode="HTML"
             )
 
-            # YANGI MANTIQ: Natijani darhol guruhga ham yuboramiz (Flow 2 ni yakunlash)
-            try:
-                await bot.send_photo(
-                    chat_id=GROUP_CHAT_ID, # 1-qadamda kiritilgan ID
-                    message_thread_id=SORTING_TOPIC_ID,
-                    photo=house_data['id'],
-                    caption=f"📣 <b>Yangi o'quvchi taqsimlandi!</b>\n\n{final_caption}",
-                    parse_mode="HTML"
-                )
-            except Exception as e:
-                logging.warning(f"Guruhga e'lon qilib bo'lmadi. GROUP_CHAT_ID xato bo'lishi mumkin: {e}")
+            # 2. FAQAT KLUBDA BO'LSA E'LON QILAMIZ
+            if USER_HOUSES[user_id]["in_club"]:
+                try:
+                    await bot.send_photo(
+                        chat_id=GROUP_CHAT_ID,
+                        message_thread_id=SORTING_TOPIC_ID,
+                        photo=house_data['id'],
+                        caption=f"📣 <b>Yangi o'quvchi taqsimlandi!</b>\n\n{final_caption}",
+                        parse_mode="HTML"
+                    )
+                except Exception as e:
+                    logging.warning(f"Guruhga e'lon qilib bo'lmadi: {e}")
         return
 
     # 3. ESKI FOYDALANUVCHILAR UCHUN
@@ -385,6 +399,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
