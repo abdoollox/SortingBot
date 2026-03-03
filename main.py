@@ -301,11 +301,6 @@ async def cmd_start(message: types.Message, command: CommandObject):
             }
             save_data(USER_HOUSES)
             
-            # Shlyapaning o'ylash animatsiyasi (UX uchun)
-            msg = await message.answer("🤔 <b>Hmm... Qiyin masala... O'ylayapman...</b>", parse_mode="HTML")
-            await asyncio.sleep(2)
-            await msg.delete() # O'ylash xabarini ham o'chiramiz
-            
             # Yakuniy natija
             user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
             final_caption = house_data['desc'].format(mention=user_mention)
@@ -386,6 +381,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
