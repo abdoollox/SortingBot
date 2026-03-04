@@ -349,14 +349,19 @@ async def cmd_start(message: types.Message, command: CommandObject):
             g_pts, s_pts, r_pts, h_pts = 5, 0, 0, 0 
         
         if house_name in HOUSES:
-            house_data = HOUSES[house_name]
-            
-            USER_HOUSES[user_id] = {
-                "house": house_name,
-                "name": message.from_user.first_name,
-                "mention": f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>",
-                "in_club": False 
-            }
+                house_data = HOUSES[house_name]
+                
+                # BAZAGA YOZISH (ENDI BALLAR HAM SAQLANADI)
+                USER_HOUSES[user_id] = {
+                    "house": house_name,
+                    "name": message.from_user.first_name,
+                    "mention": f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>",
+                    "in_club": False,
+                    "g_pts": g_pts, # YANGLIK
+                    "s_pts": s_pts, # YANGLIK
+                    "r_pts": r_pts, # YANGLIK
+                    "h_pts": h_pts  # YANGLIK
+                }
             
             try:
                 member = await bot.get_chat_member(chat_id=GROUP_CHAT_ID, user_id=user_id)
@@ -399,12 +404,38 @@ async def cmd_start(message: types.Message, command: CommandObject):
                     logging.warning(f"Guruhga e'lon qilib bo'lmadi: {e}")
         return
 
-    # 3. ESKI FOYDALANUVCHILAR UCHUN
+   # 3. ESKI FOYDALANUVCHILAR UCHUN
     if user_id in USER_HOUSES:
-        current_house = USER_HOUSES[user_id]["house"]
+        user_data = USER_HOUSES[user_id]
+        current_house = user_data["house"]
         house_data = HOUSES[current_house]
         
-        caption_text = f"✋ Siz allaqachon <b>{current_house}</b> {house_data['emoji']} fakultetiga taqsimlangansiz!\n\nFikringizni o'zgartirdingizmi yoki qayta sinab ko'rmoqchimisiz? Pastdagi tugma orqali testni qayta ishlashingiz mumkin."
+        caption_text = f"✋ Siz allaqachon <b>{current_house}</b> {house_data['emoji']} fakultetiga taqsimlangansiz!\n\n"
+        
+        # XAVFSIZLIK: Agar mijoz bazasida ballar saqlangan bo'lsa, grafik chizamiz
+        if "g_pts" in user_data:
+            g_pts, s_pts, r_pts, h_pts = user_data["g_pts"], user_data["s_pts"], user_data["r_pts"], user_data["h_pts"]
+            
+            def make_bar(pts, color_emoji):
+                blocks = pts  
+                empty = 5 - pts 
+                return (color_emoji * blocks) + ("⬛" * empty)
+                
+            stats_text = (
+                f"📊 <b>Sizning oxirgi tahlilingiz:</b>\n"
+                f"🦁 <b>Gryffindor: {g_pts * 20}%</b>\n"
+                f"↳ {make_bar(g_pts, '🟥')}\n"
+                f"🦅 <b>Ravenclaw: {r_pts * 20}%</b>\n"
+                f"↳ {make_bar(r_pts, '🟦')}\n"
+                f"🐍 <b>Slytherin: {s_pts * 20}%</b>\n"
+                f"↳ {make_bar(s_pts, '🟩')}\n"
+                f"🦡 <b>Hufflepuff: {h_pts * 20}%</b>\n"
+                f"↳ {make_bar(h_pts, '🟨')}\n\n"
+            )
+            caption_text += stats_text # Grafikni asosiy matnga ulaymiz
+            
+        caption_text += "Fikringizni o'zgartirdingizmi yoki qayta sinab ko'rmoqchimisiz? Pastdagi tugma orqali testni qayta ishlashingiz mumkin."
+        
         web_app_btn = InlineKeyboardButton(text="🧙 Qayta kiyish", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
         
@@ -434,6 +465,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
