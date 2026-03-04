@@ -378,7 +378,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
                 return (color_emoji * blocks) + ("⬛" * empty)
             
             stats_text = (
-                f"\n\n<blockquote>📊 <b>Statistik tahlil:</b>\n\n"
+                f"<blockquote>📊 <b>Statistik tahlil:</b>\n\n"
                 f"🦁 <b>Gryffindor: {g_pts * 20}%</b>\n"
                 f"↳ {make_bar(g_pts, '🟥')}\n"
                 f"🦅 <b>Ravenclaw: {r_pts * 20}%</b>\n"
@@ -386,7 +386,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
                 f"🐍 <b>Slytherin: {s_pts * 20}%</b>\n"
                 f"↳ {make_bar(s_pts, '🟩')}\n"
                 f"🦡 <b>Hufflepuff: {h_pts * 20}%</b>\n"
-                f"↳ {make_bar(h_pts, '🟨')}</blockquote>\n"
+                f"↳ {make_bar(h_pts, '🟨')}</blockquote>\n\n"
             )
             
             user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
@@ -422,7 +422,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
                 return (color_emoji * blocks) + ("⬛" * empty)
                 
             stats_text = (
-                f"\n\n<blockquote>📊 <b>Statistik tahlil:</b>\n\n"
+                f"<blockquote>📊 <b>Statistik tahlil:</b>\n\n"
                 f"🦁 <b>Gryffindor: {g_pts * 20}%</b>\n"
                 f"↳ {make_bar(g_pts, '🟥')}\n"
                 f"🦅 <b>Ravenclaw: {r_pts * 20}%</b>\n"
@@ -430,7 +430,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
                 f"🐍 <b>Slytherin: {s_pts * 20}%</b>\n"
                 f"↳ {make_bar(s_pts, '🟩')}\n"
                 f"🦡 <b>Hufflepuff: {h_pts * 20}%</b>\n"
-                f"↳ {make_bar(h_pts, '🟨')}</blockquote>\n"
+                f"↳ {make_bar(h_pts, '🟨')}</blockquote>\n\n"
             )
             caption_text += stats_text # Grafikni asosiy matnga ulaymiz
             
@@ -465,3 +465,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
