@@ -481,7 +481,7 @@ async def send_alohomora_pitch(user_id: int, house_name: str, first_name: str):
         
         # Alohomora botga o'tkazuvchi tugma
         btn = InlineKeyboardMarkup(inline_keyboard=[[
-            InlineKeyboardButton(text="🗝 Alohomora'ni ishga tushirish", url="https://t.me/SeningAlohomoraBoting_bot")
+            InlineKeyboardButton(text="🗝 Alohomora'ni ishga tushirish", url="https://t.me/garripotter_cinemabot?start=start")
         ]])
         
         await bot.send_message(chat_id=user_id, text=text, reply_markup=btn, parse_mode="HTML")
@@ -503,3 +503,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
