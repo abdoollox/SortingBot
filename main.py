@@ -79,7 +79,7 @@ HOUSES = {
             
             "🔥 Gryffindor — jasur, mard va yetakchi sehrgarlar uyi. Bu yerda qo‘rquv emas, jasorat hukmron.\n\n"
             
-            "✨ Fakulteting bilan faxrlan!\n"
+            "✨ Fakulteting bilan faxrlan!"
         ),
         "emoji": "🦁"
     },
@@ -197,6 +197,7 @@ async def welcome_new_member(message: types.Message):
             reply_markup=tugma, 
             parse_mode="HTML"
         )
+
 # --- A'ZO CHIQIB KETGANDA (LEFT XABARINI O'CHIRISH VA STATUSNI YANGILASH) ---
 @dp.message(F.left_chat_member)
 async def delete_left_message(message: types.Message):
@@ -248,12 +249,11 @@ async def sorting_hat_process(callback: types.CallbackQuery):
 async def show_statistics(message: types.Message):
     is_admin = False
 
-    # 1-TEKSHIRUV: Agar Anonim Admin bo'lsa (GroupAnonymousBot ID: 1087968824)
-    # Yoki xabar to'g'ridan-to'g'ri kanal/guruh nomidan yozilgan bo'lsa
+    # 1-TEKSHIRUV: Agar Anonim Admin bo'lsa
     if message.from_user.id == 1087968824 or (message.sender_chat and message.sender_chat.id == message.chat.id):
         is_admin = True
     else:
-        # 2-TEKSHIRUV: Oddiy admin yoki Creator ekanligini tekshiramiz
+        # 2-TEKSHIRUV: Oddiy admin yoki Creator
         try:
             member = await bot.get_chat_member(message.chat.id, message.from_user.id)
             if member.status in ['administrator', 'creator']:
@@ -261,7 +261,6 @@ async def show_statistics(message: types.Message):
         except:
             pass
 
-    # Agar admin bo'lmasa, to'xtatamiz
     if not is_admin:
         await message.reply("⛔️ <b>Bu buyruq faqat Hogwarts direktori uchun!</b>", parse_mode="HTML")
         return
@@ -275,7 +274,7 @@ async def show_statistics(message: types.Message):
     }
     
     for user_id, info in USER_HOUSES.items():
-        if info.get("in_club", False): # DIQQAT: Faqat klubdagilar o'tadi
+        if info.get("in_club", False): 
             h_name = info["house"]
             if h_name in stats:
                 stats[h_name].append(info["mention"])
@@ -283,22 +282,18 @@ async def show_statistics(message: types.Message):
     # 3. Chiroyli matn tuzamiz
     text = "📜 <b>HOGWARTS O'QUVCHILARI RO'YXATI:</b>\n\n"
     
-    # Gryffindor
     text += f"🦁 <b>Gryffindor ({len(stats['Gryffindor'])}):</b>\n"
     text += ", ".join(stats['Gryffindor']) if stats['Gryffindor'] else "<i>Hozircha hech kim yo'q</i>"
     text += "\n\n"
     
-    # Slytherin
     text += f"🐍 <b>Slytherin ({len(stats['Slytherin'])}):</b>\n"
     text += ", ".join(stats['Slytherin']) if stats['Slytherin'] else "<i>Hozircha hech kim yo'q</i>"
     text += "\n\n"
 
-    # Ravenclaw
     text += f"🦅 <b>Ravenclaw ({len(stats['Ravenclaw'])}):</b>\n"
     text += ", ".join(stats['Ravenclaw']) if stats['Ravenclaw'] else "<i>Hozircha hech kim yo'q</i>"
     text += "\n\n"
 
-    # Hufflepuff
     text += f"🦡 <b>Hufflepuff ({len(stats['Hufflepuff'])}):</b>\n"
     text += ", ".join(stats['Hufflepuff']) if stats['Hufflepuff'] else "<i>Hozircha hech kim yo'q</i>"
     
@@ -312,7 +307,6 @@ async def verify_sub_handler(callback: types.CallbackQuery):
         await callback.message.delete()
         await callback.answer("Obuna tasdiqlandi! Xush kelibsiz 🪄", show_alert=False)
         
-        # Testni boshlash uchun WebApp tugmasini beramiz
         user_mention = f"<a href='tg://user?id={callback.from_user.id}'>{callback.from_user.first_name}</a>"
         caption_text = (
             f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\n"
@@ -345,7 +339,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
             reply_markup=get_subscription_keyboard(),
             parse_mode="HTML"
         )
-        return # Kod shu yerda to'xtaydi
+        return 
 
     # 2. DEEP LINK TEKSHIRUVI (WebApp dan natija qaytsa)
     args = command.args 
@@ -363,16 +357,22 @@ async def cmd_start(message: types.Message, command: CommandObject):
         if house_name in HOUSES:
             house_data = HOUSES[house_name]
             
-            # BAZAGA YOZISH (ENDI BALLAR HAM SAQLANADI)
+            # SPAMDAN HIMOYA: Eski foydalanuvchining pitch statusini saqlab qolamiz
+            is_pitched = False
+            if user_id in USER_HOUSES and "alohomora_pitched" in USER_HOUSES[user_id]:
+                is_pitched = USER_HOUSES[user_id]["alohomora_pitched"]
+
+            # BAZAGA YOZISH (ENDI BALLAR VA SPAM FLAG HAM SAQLANADI)
             USER_HOUSES[user_id] = {
                 "house": house_name,
                 "name": message.from_user.first_name,
                 "mention": f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>",
                 "in_club": False,
-                "g_pts": g_pts, # YANGLIK
-                "s_pts": s_pts, # YANGLIK
-                "r_pts": r_pts, # YANGLIK
-                "h_pts": h_pts  # YANGLIK
+                "g_pts": g_pts, 
+                "s_pts": s_pts, 
+                "r_pts": r_pts, 
+                "h_pts": h_pts,
+                "alohomora_pitched": is_pitched # Yangilandi
             }
             
             try:
@@ -411,8 +411,12 @@ async def cmd_start(message: types.Message, command: CommandObject):
             
             # Lichkaga yuborish
             await bot.send_photo(chat_id=message.chat.id, photo=house_data['id'], caption=private_caption, reply_markup=keyboard, parse_mode="HTML")
-            # YANGI: ALOHOMORA SOTUV ZANJIRINI ISHGA TUSHIRISH
-            asyncio.create_task(send_alohomora_pitch(user_id, house_name, message.from_user.first_name))
+            
+            # YANGI MANTIQ: ALOHOMORA SOTUV ZANJIRINI ISHGA TUSHIRISH (Faqat hayotida 1 marta)
+            if not USER_HOUSES[user_id].get("alohomora_pitched", False):
+                asyncio.create_task(send_alohomora_pitch(user_id, house_name, message.from_user.first_name))
+                USER_HOUSES[user_id]["alohomora_pitched"] = True
+                save_data(USER_HOUSES) # Flagni saqlaymiz
 
             # 2. GURUH UCHUN MATN (Statistikasiz, faqat ta'rifning o'zi)
             if USER_HOUSES[user_id]["in_club"]:
@@ -459,7 +463,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
         
         await bot.send_photo(chat_id=message.chat.id, photo=house_data['id'], caption=caption_text, reply_markup=keyboard, parse_mode="HTML")
-        asyncio.create_task(send_alohomora_pitch(user_id, house_name, message.from_user.first_name))
+        # DIQQAT: Bu yerdagi xato sotuv kodi o'chirildi! Tizim endi sinmaydi.
         return
 
     # 4. YANGI FOYDALANUVCHILAR UCHUN (OBUNADAN O'TGANLAR)
@@ -509,15 +513,3 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
-
-
-
-
-
-
-
-
-
-
-
-
