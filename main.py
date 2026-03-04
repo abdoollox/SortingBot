@@ -378,7 +378,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
                 return (color_emoji * blocks) + ("⬛" * empty)
             
             stats_text = (
-                f"\n\n📊 <b>Psixologik tahlil:</b>\n"
+                f"\n\n📊 <b>Statistik tahlil:</b>\n\n"
                 f"🦁 <b>Gryffindor: {g_pts * 20}%</b>\n"
                 f"↳ {make_bar(g_pts, '🟥')}\n"
                 f"🦅 <b>Ravenclaw: {r_pts * 20}%</b>\n"
@@ -392,7 +392,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
             user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
             final_caption = house_data['desc'].format(mention=user_mention) + stats_text
             
-            web_app_btn = InlineKeyboardButton(text="🧙 Qayta kiyish", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
+            web_app_btn = InlineKeyboardButton(text="Qayta ishlash", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
             keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
             
             await bot.send_photo(chat_id=message.chat.id, photo=house_data['id'], caption=final_caption, reply_markup=keyboard, parse_mode="HTML")
@@ -422,7 +422,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
                 return (color_emoji * blocks) + ("⬛" * empty)
                 
             stats_text = (
-                f"📊 <b>Sizning oxirgi tahlilingiz:</b>\n"
+                f"📊 <b>Sizning oxirgi tahlilingiz:</b>\n\n"
                 f"🦁 <b>Gryffindor: {g_pts * 20}%</b>\n"
                 f"↳ {make_bar(g_pts, '🟥')}\n"
                 f"🦅 <b>Ravenclaw: {r_pts * 20}%</b>\n"
@@ -436,7 +436,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
             
         caption_text += "Fikringizni o'zgartirdingizmi yoki qayta sinab ko'rmoqchimisiz? Pastdagi tugma orqali testni qayta ishlashingiz mumkin."
         
-        web_app_btn = InlineKeyboardButton(text="🧙 Qayta kiyish", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
+        web_app_btn = InlineKeyboardButton(text="Qayta ishlash", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
         
         await bot.send_photo(chat_id=message.chat.id, photo=house_data['id'], caption=caption_text, reply_markup=keyboard, parse_mode="HTML")
@@ -465,6 +465,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
