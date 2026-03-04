@@ -168,9 +168,11 @@ async def welcome_new_member(message: types.Message):
             USER_HOUSES[user.id]["in_club"] = True # Statusni faollashtiramiz
             save_data(USER_HOUSES)
             
-            caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\n"
-                           f"Sizni «Hogwarts Cinema» klubida ko'rganimizdan xursandmiz.\n\n"
-                           f"Fakultetingiz klubdagilarga e'lon qilish vaqti keldi!"
+            caption_text = (
+                f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\n"
+                f"Sizni «Hogwarts Cinema» klubida ko'rganimizdan xursandmiz.\n\n"
+                f"Fakultetingiz klubdagilarga e'lon qilish vaqti keldi!"
+            )
             tugma = InlineKeyboardMarkup(inline_keyboard=[[
                 InlineKeyboardButton(text="Fakultetimni e'lon qilish", callback_data=f"wear_hat_{user.id}")
             ]])
@@ -178,9 +180,11 @@ async def welcome_new_member(message: types.Message):
         # 2-JARAYON (Flow 2): Agar mijoz test yechmagan bo'lsa
         else:
             bot_url = f"https://t.me/{bot_info.username}?start=sort"
-            caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\n"
-                           f"Sizni «Hogwarts Cinema» klubida ko'rganimizdan xursandmiz.\n\n"
-                           f"Taqsimlovchi shlyapa orqali sizga mos fakultetni aniqlashimiz kerak!"
+            caption_text = (
+                f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\n"
+                f"Sizni «Hogwarts Cinema» klubida ko'rganimizdan xursandmiz.\n\n"
+                f"Taqsimlovchi shlyapa orqali sizga mos fakultetni aniqlashimiz kerak!"
+            )
             tugma = InlineKeyboardMarkup(inline_keyboard=[[
                 InlineKeyboardButton(text="Fakultet tanlash", url=bot_url)
             ]])
@@ -471,5 +475,6 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
