@@ -414,7 +414,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
 
             # 2. GURUH UCHUN MATN (Statistikasiz, faqat ta'rifning o'zi)
             if USER_HOUSES[user_id]["in_club"]:
-                group_caption = f"📣 <b>Yangi o'quvchi taqsimlandi!</b>\n\n{house_data['desc'].format(mention=user_mention)}"
+                group_caption = f"📣 <b>O'quvchi taqsimlandi!</b>\n\n{house_data['desc'].format(mention=user_mention)}"
                 try:
                     await bot.send_photo(chat_id=GROUP_CHAT_ID, message_thread_id=SORTING_TOPIC_ID, photo=house_data['id'], caption=group_caption, parse_mode="HTML")
                 except Exception as e:
@@ -482,6 +482,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
