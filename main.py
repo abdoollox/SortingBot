@@ -306,8 +306,8 @@ async def verify_sub_handler(callback: types.CallbackQuery):
         
         # Testni boshlash uchun WebApp tugmasini beramiz
         user_mention = f"<a href='tg://user?id={callback.from_user.id}'>{callback.from_user.first_name}</a>"
-        caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak. Pastdagi tugmani bosib testni boshlang."
-        web_app_btn = InlineKeyboardButton(text="🧙 Qalpoqni kiyish", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
+        caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\n🏰 Sizni Hogwarts sehrgarlar maktabining fakultetlaridan biriga taqsimlashimiz kerak.\n\n👇Pastdagi tugmani bosib fakultetingizni aniqlang."
+        web_app_btn = InlineKeyboardButton(text="Testdan o'tish", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
         
         await bot.send_photo(chat_id=callback.message.chat.id, photo=HAT_IMG_ID, caption=caption_text, reply_markup=keyboard, parse_mode="HTML")
@@ -434,5 +434,6 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
