@@ -453,7 +453,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
             )
             caption_text += stats_text # Grafikni asosiy matnga ulaymiz
             
-        caption_text += "Fikringizni o'zgartirdingizmi yoki qayta sinab ko'rmoqchimisiz? Pastdagi tugma orqali testni qayta ishlashingiz mumkin."
+        caption_text += "\nFikringizni o'zgartirdingizmi yoki qayta sinab ko'rmoqchimisiz? Pastdagi tugma orqali testni qayta ishlashingiz mumkin."
         
         web_app_btn = InlineKeyboardButton(text="Qayta ishlash", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
@@ -509,6 +509,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
