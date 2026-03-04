@@ -171,7 +171,7 @@ async def welcome_new_member(message: types.Message):
             caption_text = (
                 f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\n"
                 f"Sizni «Hogwarts Cinema» klubida ko'rganimizdan xursandmiz.\n\n"
-                f"Fakultetingiz klubdagilarga e'lon qilish vaqti keldi!"
+                f"Fakultetingizni klubdagilarga e'lon qilish vaqti keldi!"
             )
             tugma = InlineKeyboardMarkup(inline_keyboard=[[
                 InlineKeyboardButton(text="Fakultetimni e'lon qilish", callback_data=f"wear_hat_{user.id}")
@@ -477,6 +477,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
