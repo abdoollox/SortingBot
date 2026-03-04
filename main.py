@@ -357,12 +357,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
         if house_name in HOUSES:
             house_data = HOUSES[house_name]
             
-            # SPAMDAN HIMOYA: Eski foydalanuvchining pitch statusini saqlab qolamiz
-            is_pitched = False
-            if user_id in USER_HOUSES and "alohomora_pitched" in USER_HOUSES[user_id]:
-                is_pitched = USER_HOUSES[user_id]["alohomora_pitched"]
-
-            # BAZAGA YOZISH (ENDI BALLAR VA SPAM FLAG HAM SAQLANADI)
+            # BAZAGA YOZISH (Xar safar test yechilganda ballar yangilanadi)
             USER_HOUSES[user_id] = {
                 "house": house_name,
                 "name": message.from_user.first_name,
@@ -371,8 +366,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
                 "g_pts": g_pts, 
                 "s_pts": s_pts, 
                 "r_pts": r_pts, 
-                "h_pts": h_pts,
-                "alohomora_pitched": is_pitched # Yangilandi
+                "h_pts": h_pts
             }
             
             try:
@@ -412,11 +406,8 @@ async def cmd_start(message: types.Message, command: CommandObject):
             # Lichkaga yuborish
             await bot.send_photo(chat_id=message.chat.id, photo=house_data['id'], caption=private_caption, reply_markup=keyboard, parse_mode="HTML")
             
-            # YANGI MANTIQ: ALOHOMORA SOTUV ZANJIRINI ISHGA TUSHIRISH (Faqat hayotida 1 marta)
-            if not USER_HOUSES[user_id].get("alohomora_pitched", False):
-                asyncio.create_task(send_alohomora_pitch(user_id, house_name, message.from_user.first_name))
-                USER_HOUSES[user_id]["alohomora_pitched"] = True
-                save_data(USER_HOUSES) # Flagni saqlaymiz
+            # SPAM-REJIM YOQILDI: Alohomora xati xar safar test yechilganda yuboriladi
+            asyncio.create_task(send_alohomora_pitch(user_id, house_name, message.from_user.first_name))
 
             # 2. GURUH UCHUN MATN (Statistikasiz, faqat ta'rifning o'zi)
             if USER_HOUSES[user_id]["in_club"]:
@@ -463,7 +454,6 @@ async def cmd_start(message: types.Message, command: CommandObject):
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
         
         await bot.send_photo(chat_id=message.chat.id, photo=house_data['id'], caption=caption_text, reply_markup=keyboard, parse_mode="HTML")
-        # DIQQAT: Bu yerdagi xato sotuv kodi o'chirildi! Tizim endi sinmaydi.
         return
 
     # 4. YANGI FOYDALANUVCHILAR UCHUN (OBUNADAN O'TGANLAR)
@@ -476,7 +466,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
 
 # --- SOTUV VORONKASI: ALOHOMORA BOTNI TAKLIF QILISH ---
 async def send_alohomora_pitch(user_id: int, house_name: str, first_name: str):
-    # 1. Kuttirish vaqti (MVP uchun hozir 1 daqiqa qilib qo'ydim, keyin 3600 qilib 1 soatga o'zgartirasan)
+    # 1. Kuttirish vaqti (MVP uchun hozir 1 daqiqa)
     await asyncio.sleep(60) 
     
     # 2. Xatni jo'natish
