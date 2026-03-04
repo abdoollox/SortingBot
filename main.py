@@ -402,16 +402,21 @@ async def cmd_start(message: types.Message, command: CommandObject):
             )
             
             user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
-            final_caption = house_data['desc'].format(mention=user_mention) + "\n" + stats_text
+            
+            # 1. LICHKA UCHUN MATN (Statistika bilan)
+            private_caption = house_data['desc'].format(mention=user_mention) + "\n\n" + stats_text
             
             web_app_btn = InlineKeyboardButton(text="Qayta ishlash", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
             keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
             
-            await bot.send_photo(chat_id=message.chat.id, photo=house_data['id'], caption=final_caption, reply_markup=keyboard, parse_mode="HTML")
+            # Lichkaga yuborish
+            await bot.send_photo(chat_id=message.chat.id, photo=house_data['id'], caption=private_caption, reply_markup=keyboard, parse_mode="HTML")
 
+            # 2. GURUH UCHUN MATN (Statistikasiz, faqat ta'rifning o'zi)
             if USER_HOUSES[user_id]["in_club"]:
+                group_caption = f"📣 <b>Yangi o'quvchi taqsimlandi!</b>\n\n{house_data['desc'].format(mention=user_mention)}"
                 try:
-                    await bot.send_photo(chat_id=GROUP_CHAT_ID, message_thread_id=SORTING_TOPIC_ID, photo=house_data['id'], caption=f"📣 <b>Yangi o'quvchi taqsimlandi!</b>\n\n{final_caption}", parse_mode="HTML")
+                    await bot.send_photo(chat_id=GROUP_CHAT_ID, message_thread_id=SORTING_TOPIC_ID, photo=house_data['id'], caption=group_caption, parse_mode="HTML")
                 except Exception as e:
                     logging.warning(f"Guruhga e'lon qilib bo'lmadi: {e}")
         return
@@ -477,6 +482,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
