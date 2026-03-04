@@ -36,6 +36,25 @@ def save_data(data):
     with open(DB_FILE, "w") as file:
         json.dump(data, file, indent=4)
 
+# --- OBUNANI TEKSHIRISH MANTIQI ---
+async def check_subscription(user_id: int):
+    # Foydalanuvchi yo kanalda, yo guruhda borligini tekshiradi (YOKI mantiqi)
+    for chat_id in [CHANNEL_ID, GROUP_CHAT_ID]:
+        try:
+            member = await bot.get_chat_member(chat_id=chat_id, user_id=user_id)
+            if member.status in ['member', 'administrator', 'creator', 'restricted']:
+                return True
+        except Exception:
+            pass # Bot admin emas yoki foydalanuvchi yo'q
+    return False
+
+def get_subscription_keyboard():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🎬 Garri Potter Kino Kanal", url=CHANNEL_INVITE_LINK)],
+        [InlineKeyboardButton(text="🏰 Hogwarts Club Guruh", url=GROUP_INVITE_LINK)],
+        [InlineKeyboardButton(text="✅ Obunani tasdiqlash", callback_data="verify_subscription")]
+    ])
+
 # --- RASM ID LARINI SHU YERGA YOZING ---
 HAT_IMG_ID = "AgACAgIAAxkBAAMEaYSnRQbDnr2YuCqkbNqQdg8v2W4AAk4OaxscMChI831GZTNaiJsBAAMCAAN5AAM4BA" 
 GRYFFINDOR_ID = "AgACAgIAAxkBAAMHaYXIIPDphgbohdWYJEK5OA47R1MAArITaxtyUClIUB8w7cOd6M4BAAMCAAN5AAM4BA"
@@ -45,6 +64,9 @@ HUFFLEPUFF_ID = "AgACAgIAAxkBAAMNaYXKHqkLLw-QQufj4D533Ld9QB8AAuQTaxtyUClIP6F1JQT
 
 SORTING_TOPIC_ID = 505 # Agar guruhda topic bo'lmasa None, bo'lsa raqamini yozing
 GROUP_CHAT_ID = -1003369300068
+
+CHANNEL_ID = -1003535019162
+CHANNEL_INVITE_LINK = "https://t.me/garripotter_cinema"
 
 # Faqat shundan keyingina HOUSES lug'ati kelishi kerak
 HOUSES = {
@@ -274,16 +296,44 @@ async def show_statistics(message: types.Message):
     
     await message.reply(text, parse_mode="HTML")
     
+# --- OBUNANI TASDIQLASH TUGMASI BOSILGANDA ---
+@dp.callback_query(F.data == "verify_subscription")
+async def verify_sub_handler(callback: types.CallbackQuery):
+    is_subbed = await check_subscription(callback.from_user.id)
+    if is_subbed:
+        await callback.message.delete()
+        await callback.answer("Obuna tasdiqlandi! Xush kelibsiz 🪄", show_alert=False)
+        
+        # Testni boshlash uchun WebApp tugmasini beramiz
+        user_mention = f"<a href='tg://user?id={callback.from_user.id}'>{callback.from_user.first_name}</a>"
+        caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak. Pastdagi tugmani bosib testni boshlang."
+        web_app_btn = InlineKeyboardButton(text="🧙 Qalpoqni kiyish", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
+        
+        await bot.send_photo(chat_id=callback.message.chat.id, photo=HAT_IMG_ID, caption=caption_text, reply_markup=keyboard, parse_mode="HTML")
+    else:
+        await callback.answer("Hali a'zo bo'lmapsiz! Iltimos, kanal yoki guruhga qo'shiling.", show_alert=True)
+
 # --- LICHKADA YOKI DEEP LINK ORQALI KELGANLAR UCHUN (/start) ---
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message, command: CommandObject):
     user_id = message.from_user.id
     
-    # 1. FOYDALANUVCHI TALABI: Qolgan /start xabarini darrov o'chiramiz
     try:
         await message.delete()
-    except Exception as e:
-        logging.warning(f"Xabarni o'chirib bo'lmadi: {e}")
+    except Exception:
+        pass
+
+    # 1. MAJBURIY OBUNA TEKSHIRUVI (BARCHA UCHUN)
+    is_subbed = await check_subscription(user_id)
+    if not is_subbed:
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="✋ <b>To'xtang! Shlyapa sizni qabul qilmayapti.</b>\n\nTaqsimlovchi shlyapadan foydalanish uchun rasmiy kanalimiz yoki klubimizga a'zo bo'lishingiz shart.",
+            reply_markup=get_subscription_keyboard(),
+            parse_mode="HTML"
+        )
+        return # Kod shu yerda to'xtaydi, testni ham, natijani ham ko'rsatmaydi
 
     # 2. DEEP LINK TEKSHIRUVI (WebApp dan natija qaytsa)
     args = command.args 
@@ -291,13 +341,12 @@ async def cmd_start(message: types.Message, command: CommandObject):
     if args and args.startswith("res_"):
         parts = args.split("_")
         
-        # Eski format (faqat res_Gryffindor) kelsa xato bermasligi uchun himoya
         if len(parts) >= 6:
             house_name = parts[1]
             g_pts, s_pts, r_pts, h_pts = int(parts[2]), int(parts[3]), int(parts[4]), int(parts[5])
         else:
             house_name = parts[1]
-            g_pts, s_pts, r_pts, h_pts = 5, 0, 0, 0 # Zaxira qiymat
+            g_pts, s_pts, r_pts, h_pts = 5, 0, 0, 0 
         
         if house_name in HOUSES:
             house_data = HOUSES[house_name]
@@ -318,54 +367,34 @@ async def cmd_start(message: types.Message, command: CommandObject):
                 
             save_data(USER_HOUSES)
             
-            # --- YANGI MANTIQ: FOIZLAR VA BAR CHART YASASH (MOBILE RESPONSIVE) ---
             def make_bar(pts, color_emoji):
                 blocks = pts  
                 empty = 5 - pts 
                 return (color_emoji * blocks) + ("⬛" * empty)
             
-            # MUHIM O'ZGARISH: Tor ekranlar uchun vertikal (Mobile-First) dizayn
             stats_text = (
                 f"\n\n📊 <b>Psixologik tahlil:</b>\n"
                 f"🦁 <b>Gryffindor: {g_pts * 20}%</b>\n"
-                f"└─ {make_bar(g_pts, '🟥')}\n"
+                f"↳ {make_bar(g_pts, '🟥')}\n"
                 f"🦅 <b>Ravenclaw: {r_pts * 20}%</b>\n"
-                f"└─ {make_bar(r_pts, '🟦')}\n"
+                f"↳ {make_bar(r_pts, '🟦')}\n"
                 f"🐍 <b>Slytherin: {s_pts * 20}%</b>\n"
-                f"└─ {make_bar(s_pts, '🟩')}\n"
+                f"↳ {make_bar(s_pts, '🟩')}\n"
                 f"🦡 <b>Hufflepuff: {h_pts * 20}%</b>\n"
-                f"└─ {make_bar(h_pts, '🟨')}"
+                f"↳ {make_bar(h_pts, '🟨')}"
             )
             
             user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
-            
-            # Asosiy matnga stastistikani qo'shamiz
             final_caption = house_data['desc'].format(mention=user_mention) + stats_text
             
-            web_app_btn = InlineKeyboardButton(
-                text="🧙 Qayta kiyish", 
-                web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
-            )
+            web_app_btn = InlineKeyboardButton(text="🧙 Qayta kiyish", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
             keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
             
-            await bot.send_photo(
-                chat_id=message.chat.id,
-                photo=house_data['id'],
-                caption=final_caption,
-                reply_markup=keyboard,
-                parse_mode="HTML"
-            )
+            await bot.send_photo(chat_id=message.chat.id, photo=house_data['id'], caption=final_caption, reply_markup=keyboard, parse_mode="HTML")
 
-            # Faqat klubda bo'lsa e'lon qilamiz
             if USER_HOUSES[user_id]["in_club"]:
                 try:
-                    await bot.send_photo(
-                        chat_id=GROUP_CHAT_ID,
-                        message_thread_id=SORTING_TOPIC_ID,
-                        photo=house_data['id'],
-                        caption=f"📣 <b>Yangi o'quvchi taqsimlandi!</b>\n\n{final_caption}",
-                        parse_mode="HTML"
-                    )
+                    await bot.send_photo(chat_id=GROUP_CHAT_ID, message_thread_id=SORTING_TOPIC_ID, photo=house_data['id'], caption=f"📣 <b>Yangi o'quvchi taqsimlandi!</b>\n\n{final_caption}", parse_mode="HTML")
                 except Exception as e:
                     logging.warning(f"Guruhga e'lon qilib bo'lmadi: {e}")
         return
@@ -375,45 +404,20 @@ async def cmd_start(message: types.Message, command: CommandObject):
         current_house = USER_HOUSES[user_id]["house"]
         house_data = HOUSES[current_house]
         
-        caption_text = (
-            f"✋ Siz allaqachon <b>{current_house}</b> {house_data['emoji']} fakultetiga taqsimlangansiz!\n\n"
-            "Fikringizni o'zgartirdingizmi yoki qayta sinab ko'rmoqchimisiz? Pastdagi tugma orqali testni qayta ishlashingiz mumkin."
-        )
-        
-        # 1-TEKSHIRUV: InlineKeyboardButton va InlineKeyboardMarkup bo'lishi shart
-        web_app_btn = InlineKeyboardButton(
-            text="🧙 Qayta kiyish", 
-            web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
-        )
+        caption_text = f"✋ Siz allaqachon <b>{current_house}</b> {house_data['emoji']} fakultetiga taqsimlangansiz!\n\nFikringizni o'zgartirdingizmi yoki qayta sinab ko'rmoqchimisiz? Pastdagi tugma orqali testni qayta ishlashingiz mumkin."
+        web_app_btn = InlineKeyboardButton(text="🧙 Qayta kiyish", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
         
-        await bot.send_photo(
-            chat_id=message.chat.id, 
-            photo=house_data['id'], 
-            caption=caption_text, 
-            reply_markup=keyboard, # 2-TEKSHIRUV: Shu qator xabarga tugmani yopishtiradi!
-            parse_mode="HTML"
-        )
+        await bot.send_photo(chat_id=message.chat.id, photo=house_data['id'], caption=caption_text, reply_markup=keyboard, parse_mode="HTML")
         return
 
-    # 4. YANGI FOYDALANUVCHILAR UCHUN
+    # 4. YANGI FOYDALANUVCHILAR UCHUN (OBUNADAN O'TGANLAR)
     user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
     caption_text = f"🧙‍♂️ <b>Xush kelibsiz, {user_mention}!</b>\n\nSizni fakultetga taqsimlashimiz kerak. Pastdagi tugmani bosib testni boshlang."
-    
-    # INLINE TUGMA (Xabar tagida)
-    web_app_btn = InlineKeyboardButton(
-        text="🧙 Qalpoqni kiyish", 
-        web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/")
-    )
+    web_app_btn = InlineKeyboardButton(text="🧙 Qalpoqni kiyish", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
     
-    await bot.send_photo(
-        chat_id=message.chat.id, 
-        photo=HAT_IMG_ID, 
-        caption=caption_text, 
-        reply_markup=keyboard, 
-        parse_mode="HTML"
-    )
+    await bot.send_photo(chat_id=message.chat.id, photo=HAT_IMG_ID, caption=caption_text, reply_markup=keyboard, parse_mode="HTML")
     
 # --- ASOSIY ISHGA TUSHIRISH ---
 async def main():
@@ -430,7 +434,3 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
-
-
-
-
