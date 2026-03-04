@@ -402,7 +402,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
             )
             
             user_mention = f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>"
-            final_caption = house_data['desc'].format(mention=user_mention) + "\n\n" + stats_text
+            final_caption = house_data['desc'].format(mention=user_mention) + "\n" + stats_text
             
             web_app_btn = InlineKeyboardButton(text="Qayta ishlash", web_app=WebAppInfo(url="https://abdoollox.github.io/SortingWebApp/"))
             keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
@@ -477,6 +477,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
