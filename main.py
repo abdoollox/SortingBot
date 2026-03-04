@@ -50,8 +50,8 @@ async def check_subscription(user_id: int):
 
 def get_subscription_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
+        # FAQAT KANAL LINKI BERILADI. Guruhniki sir saqlanadi.
         [InlineKeyboardButton(text="🎬 Garri Potter Kino Kanal", url=CHANNEL_INVITE_LINK)],
-        [InlineKeyboardButton(text="🏰 Hogwarts Club Guruh", url=GROUP_INVITE_LINK)],
         [InlineKeyboardButton(text="✅ Obunani tasdiqlash", callback_data="verify_subscription")]
     ])
 
@@ -329,11 +329,11 @@ async def cmd_start(message: types.Message, command: CommandObject):
     if not is_subbed:
         await bot.send_message(
             chat_id=message.chat.id,
-            text="✋ <b>To'xtang! Shlyapa sizni qabul qilmayapti.</b>\n\nTaqsimlovchi shlyapadan foydalanish uchun rasmiy kanalimiz yoki klubimizga a'zo bo'lishingiz shart.",
+            text="✋ <b>To'xtang! Shlyapa sizni tanimayapti.</b>\n\nTaqsimlovchi shlyapadan foydalanish uchun <b>Hogwarts Club</b> a'zosi bo'lishingiz yoki rasmiy kino kanalimizga obuna bo'lishingiz shart.\n\nPastdagi tugma orqali kanalga a'zo bo'ling va tasdiqlang:",
             reply_markup=get_subscription_keyboard(),
             parse_mode="HTML"
         )
-        return # Kod shu yerda to'xtaydi, testni ham, natijani ham ko'rsatmaydi
+        return # Kod shu yerda to'xtaydi
 
     # 2. DEEP LINK TEKSHIRUVI (WebApp dan natija qaytsa)
     args = command.args 
@@ -434,3 +434,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
