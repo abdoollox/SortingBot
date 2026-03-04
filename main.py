@@ -79,7 +79,7 @@ HOUSES = {
             
             "🔥 Gryffindor — jasur, mard va yetakchi sehrgarlar uyi. Bu yerda qo‘rquv emas, jasorat hukmron.\n\n"
             
-            "✨ Fakulteting bilan faxrlan!"
+            "✨ Fakulteting bilan faxrlan!\n"
         ),
         "emoji": "🦁"
     },
@@ -477,6 +477,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
