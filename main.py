@@ -411,6 +411,8 @@ async def cmd_start(message: types.Message, command: CommandObject):
             
             # Lichkaga yuborish
             await bot.send_photo(chat_id=message.chat.id, photo=house_data['id'], caption=private_caption, reply_markup=keyboard, parse_mode="HTML")
+            # YANGI: ALOHOMORA SOTUV ZANJIRINI ISHGA TUSHIRISH
+            asyncio.create_task(send_alohomora_pitch(user_id, house_name, message.from_user.first_name))
 
             # 2. GURUH UCHUN MATN (Statistikasiz, faqat ta'rifning o'zi)
             if USER_HOUSES[user_id]["in_club"]:
@@ -457,6 +459,7 @@ async def cmd_start(message: types.Message, command: CommandObject):
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
         
         await bot.send_photo(chat_id=message.chat.id, photo=house_data['id'], caption=caption_text, reply_markup=keyboard, parse_mode="HTML")
+        asyncio.create_task(send_alohomora_pitch(user_id, house_name, message.from_user.first_name))
         return
 
     # 4. YANGI FOYDALANUVCHILAR UCHUN (OBUNADAN O'TGANLAR)
@@ -466,6 +469,30 @@ async def cmd_start(message: types.Message, command: CommandObject):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_btn]])
     
     await bot.send_photo(chat_id=message.chat.id, photo=HAT_IMG_ID, caption=caption_text, reply_markup=keyboard, parse_mode="HTML")
+
+# --- SOTUV VORONKASI: ALOHOMORA BOTNI TAKLIF QILISH ---
+async def send_alohomora_pitch(user_id: int, house_name: str, first_name: str):
+    # 1. Kuttirish vaqti (MVP uchun hozir 1 daqiqa qilib qo'ydim, keyin 3600 qilib 1 soatga o'zgartirasan)
+    await asyncio.sleep(60) 
+    
+    # 2. Xatni jo'natish
+    try:
+        text = (
+            f"🦉 <b>Sizga boyqush xat keltirdi!</b>\n\n"
+            f"<i>{first_name}</i>, Hogwartsning <b>{house_name}</b> fakultetiga joylashib oldingizmi?\n\n"
+            f"Maktabda oddiy o'quvchilardan yashirilgan sirlar, yopiq eshiklar va maxsus arxivlar juda ko'p. Ularga kirish uchun sizga qulflarni ochuvchi sehr kerak bo'ladi.\n\n"
+            f"🗝 <b>Alohomora Bot</b> — bu yashirin arxivlar va VIP ma'lumotlar kaliti.\n\n"
+            f"Yashirin eshiklarni ochishga tayyormisiz?"
+        )
+        
+        # Alohomora botga o'tkazuvchi tugma
+        btn = InlineKeyboardMarkup(inline_keyboard=[[
+            InlineKeyboardButton(text="🗝 Alohomora'ni ishga tushirish", url="https://t.me/SeningAlohomoraBoting_bot")
+        ]])
+        
+        await bot.send_message(chat_id=user_id, text=text, reply_markup=btn, parse_mode="HTML")
+    except Exception as e:
+        logging.warning(f"Alohomora xatini {user_id} ga yuborib bo'lmadi: {e}")
     
 # --- ASOSIY ISHGA TUSHIRISH ---
 async def main():
@@ -482,6 +509,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
