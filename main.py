@@ -349,19 +349,19 @@ async def cmd_start(message: types.Message, command: CommandObject):
             g_pts, s_pts, r_pts, h_pts = 5, 0, 0, 0 
         
         if house_name in HOUSES:
-                house_data = HOUSES[house_name]
-                
-                # BAZAGA YOZISH (ENDI BALLAR HAM SAQLANADI)
-                USER_HOUSES[user_id] = {
-                    "house": house_name,
-                    "name": message.from_user.first_name,
-                    "mention": f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>",
-                    "in_club": False,
-                    "g_pts": g_pts, # YANGLIK
-                    "s_pts": s_pts, # YANGLIK
-                    "r_pts": r_pts, # YANGLIK
-                    "h_pts": h_pts  # YANGLIK
-                }
+            house_data = HOUSES[house_name]
+            
+            # BAZAGA YOZISH (ENDI BALLAR HAM SAQLANADI)
+            USER_HOUSES[user_id] = {
+                "house": house_name,
+                "name": message.from_user.first_name,
+                "mention": f"<a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>",
+                "in_club": False,
+                "g_pts": g_pts, # YANGLIK
+                "s_pts": s_pts, # YANGLIK
+                "r_pts": r_pts, # YANGLIK
+                "h_pts": h_pts  # YANGLIK
+            }
             
             try:
                 member = await bot.get_chat_member(chat_id=GROUP_CHAT_ID, user_id=user_id)
@@ -465,6 +465,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
 
 
