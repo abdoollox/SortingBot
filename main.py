@@ -66,7 +66,7 @@ SORTING_TOPIC_ID = 505 # Agar guruhda topic bo'lmasa None, bo'lsa raqamini yozin
 GROUP_CHAT_ID = -1003369300068
 
 CHANNEL_ID = -1003535019162
-CHANNEL_INVITE_LINK = "https://t.me/garripotter_cinema"
+CHANNEL_INVITE_LINK = "https://t.me/garripotter_kolleksiya"
 
 # Faqat shundan keyingina HOUSES lug'ati kelishi kerak
 HOUSES = {
@@ -503,4 +503,5 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logging.error("Bot to'xtadi!")
+
 
